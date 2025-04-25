@@ -35,7 +35,7 @@ cd DeepLearningBaseline
 - Use uv to install the required packages from the `pyproject.toml` file:
 
     ```bash
-    uv pip install
+    uv pip install <package-name>
     ```
 
 - Add dependencies to the `pyproject.toml` file as needed:
