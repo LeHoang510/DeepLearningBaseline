@@ -26,16 +26,13 @@ cd DeepLearningBaseline
     ```
 
 ### 2.2. Install the required packages
+
+#### 2.2.1. Install the required packages using uv
+
 - You can install the required packages using uv. To do this, run the following command:
 
     ```bash
     pip install uv
-    ```
-
-- Use uv to install the required packages from the `pyproject.toml` file:
-
-    ```bash
-    uv pip install <package-name>
     ```
 
 - Add dependencies to the `pyproject.toml` file as needed:
@@ -43,3 +40,27 @@ cd DeepLearningBaseline
     ```bash
     uv add <package-name>
     ```
+- Install the dependencies in the `requirements.txt` file for existing projects:
+
+    ```bash
+    uv pip install -r requirements.txt
+    ```
+
+#### 2.2.2. Install the required packages using poetry
+- You can install the required packages using poetry. To do this, run the following command:
+
+    ```bash
+    pip install poetry
+    ```
+- Add dependencies to the `pyproject.toml` file as needed:
+
+    ```bash 
+    poetry add <package-name>
+    ```
+
+- Install the dependencies in the `pyproject.toml` file for existing projects:
+
+    ```bash
+    poetry install
+    ```
+

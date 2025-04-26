@@ -1,6 +1,4 @@
-def main():
-    print("Hello from deeplearningbaseline!")
-
+from utils.logger import logger
 
 if __name__ == "__main__":
-    main()
+    logger

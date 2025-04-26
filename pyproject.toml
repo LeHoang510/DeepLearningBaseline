@@ -5,26 +5,28 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "tensorboard (>=2.19.0,<3.0.0)",
-    "torch (>=2.6.0,<3.0.0)",
-    "torchvision (>=0.21.0,<0.22.0)",
-    "torchaudio (>=2.6.0,<3.0.0)",
     "matplotlib (>=3.10.1,<4.0.0)",
     "pillow (>=11.1.0,<12.0.0)",
     "scikit-learn (>=1.6.1,<2.0.0)",
     "timm (>=1.0.15,<2.0.0)",
     "tqdm (>=4.67.1,<5.0.0)",
+    "tensorboard (>=2.19.0,<3.0.0)",
+    "torch (>=2.6.0,<3.0.0)",
+    "torchvision (>=0.21.0,<0.22.0)",
+    "torchaudio (>=2.6.0,<3.0.0)",
 ]
 
-[tool.uv.sources]
-torch = [
-  { index = "pytorch-cu118", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
-]
-torchvision = [
-  { index = "pytorch-cu118", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
-]
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
 
-[[tool.uv.index]]
-name = "pytorch-cu118"
+[[tool.poetry.source]]
+name = "pytorch"
 url = "https://download.pytorch.org/whl/cu118"
-explicit = true
+priority = "explicit"
+
+
+[tool.poetry.dependencies]
+torch = {source = "pytorch"}
+torchvision = {source = "pytorch"}
+torchaudio = {source = "pytorch"}
