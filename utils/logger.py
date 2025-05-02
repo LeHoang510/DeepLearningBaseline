@@ -12,7 +12,7 @@ class Logger:
         return cls._instance
 
     def _init_logger(self, input_name):
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%d.%m.%Y_%H-%M-%S")
         base_folder = "logs"
 
         if input_name:
