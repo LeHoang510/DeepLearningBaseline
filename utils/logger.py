@@ -2,6 +2,26 @@ import os
 import logging
 from datetime import datetime
 
+class ColoredFormatter(logging.Formatter):
+
+    COLORS = {
+        "DEBUG": "\033[0;36m",  # Cyan
+        "INFO": "\033[0;32m",  # Green
+        "WARNING": "\033[0;33m",  # Yellow
+        "ERROR": "\033[0;31m",  # Red
+        "CRITICAL": "\033[0;37m\033[41m",  # White on Red BG
+        "RESET": "\033[0m",  # Reset
+    }
+
+    def format(self, record):
+        msg = (
+            self.COLORS.get(record.levelname, self.COLORS["RESET"]) 
+            + super().format(record) 
+            + self.COLORS["RESET"]
+        )
+        return msg
+
+
 class Logger:
     _instance = None  # Singleton
 
@@ -23,11 +43,17 @@ class Logger:
         os.makedirs(self.log_dir, exist_ok=True)
         self.log_file = os.path.join(self.log_dir, "log.txt")
 
+
         self.logger = logging.getLogger("SystemLogger")
         self.logger.setLevel(logging.DEBUG)
         self.logger.propagate = False
 
-        formatter = logging.Formatter(
+        file_formatter = logging.Formatter(
+            fmt="[%(asctime)s] [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s",
+            datefmt="%H:%M:%S"
+        )
+
+        console_formatter = ColoredFormatter(
             fmt="[%(asctime)s] [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s",
             datefmt="%H:%M:%S"
         )
@@ -35,12 +61,12 @@ class Logger:
         # File handler
         file_handler = logging.FileHandler(self.log_file, encoding="utf-8")
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
+        file_handler.setFormatter(file_formatter)
 
         # Console handler
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(formatter)
+        console_handler.setFormatter(console_formatter)
 
         if not self.logger.handlers:
             self.logger.addHandler(file_handler)
@@ -57,6 +83,9 @@ class Logger:
 
     def error(self, msg):
         self.logger.error(msg, stacklevel=2)
+    
+    def critical(self, msg):
+        self.logger.critical(msg, stacklevel=2)
 
     def get_log_path(self):
         return self.log_file

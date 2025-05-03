@@ -30,23 +30,29 @@ class EarlyStopping:
 
 
 class TensorBoard:
-    def __init__(self, log_dir=Path("output/logs")):
+    def __init__(self, log_dir=Path("outputs/logs")):
         self.log_dir = log_dir
         self.writer = None
     
-    def write(self, epoch, total_epoch, train_loss, val_loss=None, val_acc=None):
+    def create_writer(self):
         if self.writer is None:
             self.writer = SummaryWriter(log_dir=self.log_dir)
-        if val_loss is not None and val_acc is not None:
-            self.writer.add_scalars("Loss", {
-                "Train": train_loss,
-                "Val": val_loss
-            }, epoch)
-            self.writer.add_scalar("Accuracy/Val", val_acc, epoch)
-            print(f"Epoch {epoch}/{total_epoch}, Train Loss: {train_loss}, Val Loss: {val_loss}, Val Acc: {val_acc}")
-        else:
-            self.writer.add_scalar("Loss/Train", train_loss, epoch)
-            print(f"Epoch {epoch}/{total_epoch}, Train Loss: {train_loss}")
+    
+    def write_train(self, epoch, train_loss):
+        self.create_writer()
+        self.writer.add_scalar("Loss/Train", train_loss, epoch)
+      
+    def write_train_val(self, epoch, train_loss, val_loss, val_acc):
+        self.create_writer()
+        self.writer.add_scalars("Loss", {
+            "Train": train_loss,
+            "Val": val_loss
+        }, epoch)
+        self.writer.add_scalar("Accuracy/Val", val_acc, epoch)
+       
+    def write_scheduler(self, epoch, scheduler):
+        self.create_writer()
+        self.writer.add_scalar("Scheduler/Learning Rate", scheduler.get_last_lr()[0], epoch)
 
     def close(self):
         self.writer.close()
