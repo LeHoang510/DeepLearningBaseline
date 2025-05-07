@@ -1,5 +1,6 @@
 import random
 import yaml
+import json
 
 import numpy as np
 import torch
@@ -17,3 +18,8 @@ def load_config(config_path):
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     return config
+
+def load_json(json_path):
+	with open(json_path, 'r') as f:
+		data = json.load(f)
+	return data

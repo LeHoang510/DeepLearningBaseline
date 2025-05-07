@@ -2,9 +2,17 @@ from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
 from torch import optim
 from torch.optim.lr_scheduler import MultiStepLR
+import torch
 
 from models.CustomFasterRCNN.faster_rcnn_fpn import CustomFasterRCNN
 
+def load_model(model_path, device):
+    config = torch.load(model_path, map_location=device)["config"]
+    model_config = config["model_config"]
+    model = CustomFasterRCNN(config=model_config)
+    model.load_state_dict(torch.load(model_path)["model_state_dict"])
+    return model
+    
 def prepare_training(config, output_dir):
     dataset_config = config["dataset_config"]
     model_config = config["model_config"]
@@ -12,11 +20,7 @@ def prepare_training(config, output_dir):
     tensorboard_path = output_dir / "tensorboard"
 
     tensorboard = TensorBoard(log_dir=tensorboard_path)
-    model = CustomFasterRCNN(
-        backbone=model_config["backbone"],
-        num_classes_type=model_config["num_classes_type"],
-        num_classes_patho=model_config["num_classes_patho"]
-    )
+    model = CustomFasterRCNN(config=model_config)
     optimizer = optim.SGD(
         model.parameters(),
         lr=train_config["learning_rate"],
