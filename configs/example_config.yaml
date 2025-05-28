@@ -1,3 +1,11 @@
+dataset_config:
+  type: ExampleDataset
+  params:
+    data_path: /path/to/data
+    batch_size: 64
+    shuffle: true
+    num_workers: 4
+
 model_config:
   type: ExampleModel
   params:

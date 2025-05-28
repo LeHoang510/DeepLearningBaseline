@@ -49,6 +49,10 @@ def prepare_training(config: dict, output_dir: Path|str):
     early_stopper = EarlyStopping(**train_config["early_stopping"]) if train_config["early_stopping"] else None
     return model, optimizer, scheduler, early_stopper, tensorboard
 
+def prepare_dataset(config:dict):
+
+    pass
+
 def get_model(model_config: dict):
     """
     Get the model based on the provided configuration.
