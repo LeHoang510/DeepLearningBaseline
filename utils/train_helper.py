@@ -3,10 +3,10 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 from torch import optim
-from torch.optim.lr_scheduler import MultiStepLR, StepLR, ExponentialLR, CosineAnnealingLR, ReduceLROnPlateau
-
+from torch.optim import lr_scheduler
 from utils.utils import EarlyStopping, TensorBoard
-from models.custom_model import CustomModel
+
+from models.example_model import ExampleModel
 
 def load_model(model_path: Path|str, device: torch.device):
     """
@@ -19,7 +19,7 @@ def load_model(model_path: Path|str, device: torch.device):
     """
     config = torch.load(model_path, map_location=device)["config"]
     model_config = config["model_config"]
-    model = CustomModel(config=model_config)
+    model = get_model(model_config)
     model.load_state_dict(torch.load(model_path)["model_state_dict"])
     return model
 
@@ -30,11 +30,11 @@ def prepare_training(config: dict, output_dir: Path|str):
         config (dict): Configuration dictionary containing model, optimizer, and training parameters.
         output_dir (Path|str): Directory where training outputs will be saved.
     Returns:
-        tensorboard (TensorBoard): TensorBoard instance for logging.
         model (torch.nn.Module): The model to be trained.
         optimizer (torch.optim.Optimizer): Optimizer for training the model.
         scheduler (torch.optim.lr_scheduler._LRScheduler): Learning rate scheduler.
         early_stopper (EarlyStopping): Early stopping instance to monitor training progress.
+        tensorboard (TensorBoard): TensorBoard instance for logging.
     """
     output_dir = Path(output_dir)
 
@@ -43,11 +43,29 @@ def prepare_training(config: dict, output_dir: Path|str):
     tensorboard_path = output_dir / "tensorboard"
 
     tensorboard = TensorBoard(log_dir=tensorboard_path)
-    model = CustomModel(config=model_config)
+    model = get_model(model_config)
     optimizer = get_optimizer(model, train_config["optimizer"])
-    scheduler = get_scheduler(optimizer, train_config["scheduler"])
-    early_stopper = EarlyStopping(**train_config["early_stopping"])
-    return tensorboard, model, optimizer, scheduler, early_stopper
+    scheduler = get_scheduler(optimizer, train_config["scheduler"]) if train_config["scheduler"] else None
+    early_stopper = EarlyStopping(**train_config["early_stopping"]) if train_config["early_stopping"] else None
+    return model, optimizer, scheduler, early_stopper, tensorboard
+
+def get_model(model_config: dict):
+    """
+    Get the model based on the provided configuration.
+    Args:
+        model_config (dict): Configuration dictionary for the model, including type and parameters.
+    Returns:
+        model (torch.nn.Module): The instantiated model.
+    """
+    models = {
+        "ExampleModel": ExampleModel,
+        # other models can be added here
+    }
+
+    if model_config["type"] not in models:
+        raise ValueError(f"Unsupported model type: {model_config['type']}. Available options: {list(models.keys())}")
+
+    return models[model_config["type"]](**model_config["params"])
 
 def get_optimizer(model: nn.Module, optimizer_config: dict):
     """
@@ -81,11 +99,13 @@ def get_scheduler(optimizer: optim.Optimizer, scheduler_config: dict):
         scheduler (torch.optim.lr_scheduler._LRScheduler): The configured learning rate scheduler.
     """
     schedulers = {
-        "StepLR": StepLR,
-        "MultiStepLR": MultiStepLR,
-        "ExponentialLR": ExponentialLR,
-        "CosineAnnealingLR": CosineAnnealingLR,
-        "ReduceLROnPlateau": ReduceLROnPlateau,
+        "StepLR": lr_scheduler.StepLR,
+        "LinearLR": lr_scheduler.LinearLR,
+        "MultiStepLR": lr_scheduler.MultiStepLR,
+        "ExponentialLR": lr_scheduler.ExponentialLR,
+        "CosineAnnealingLR": lr_scheduler.CosineAnnealingLR,
+        "ReduceLROnPlateau": lr_scheduler.ReduceLROnPlateau,
+        "OneCycleLR": lr_scheduler.OneCycleLR,
         # others can be added here
     }
 

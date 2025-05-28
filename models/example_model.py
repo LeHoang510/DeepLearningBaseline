@@ -1,23 +1,22 @@
 import torch
 import torch.nn as nn
 
-class CustomModel(nn.Module):
+class ExampleModel(nn.Module):
     """
     A custom PyTorch model that extends nn.Module.
     This is a placeholder for your specific model architecture.
     """
-    
-    def __init__(self, config: dict):
+
+    def __init__(self, input_size, output_size, dropout_rate=0):
         """
-        Initializes the CustomModel with the given configuration.
+        Initializes the ExampleModel with the given configuration.
         Args:
             config (dict): Configuration dictionary containing model parameters.
         """
-        super(CustomModel, self).__init__()
-        self.config = config
-        input_size = config["input_size"] 
-        output_size = config["output_size"]
-        dropout_rate = config["dropout_rate"] if "dropout_rate" in config else 0
+        super(ExampleModel, self).__init__()
+        self.input_size = input_size
+        self.output_size = output_size
+        self.dropout_rate = dropout_rate
 
         self.fc_1 = nn.Linear(input_size, 512)
         self.fc_2 = nn.Linear(512, output_size)
