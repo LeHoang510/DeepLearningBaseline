@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import torch
+import torch.nn as nn
 from torch import optim
 from torch.optim.lr_scheduler import MultiStepLR, StepLR, ExponentialLR, CosineAnnealingLR, ReduceLROnPlateau
 
@@ -43,13 +44,52 @@ def prepare_training(config: dict, output_dir: Path|str):
 
     tensorboard = TensorBoard(log_dir=tensorboard_path)
     model = CustomModel(config=model_config)
-    optimizer = optim.SGD(
-        model.parameters(),
-        lr=train_config["learning_rate"],
-        momentum=train_config["momentum"],
-        weight_decay=train_config["weight_decay"]
-    )
-    scheduler = MultiStepLR(optimizer, **train_config["scheduler"])
+    optimizer = get_optimizer(model, train_config["optimizer"])
+    scheduler = get_scheduler(optimizer, train_config["scheduler"])
     early_stopper = EarlyStopping(**train_config["early_stopping"])
     return tensorboard, model, optimizer, scheduler, early_stopper
 
+def get_optimizer(model: nn.Module, optimizer_config: dict):
+    """
+    Get the optimizer based on the provided configuration.
+    Args:
+        model (torch.nn.Module): The model for which the optimizer is to be created.
+        optimizer_config (dict): Configuration dictionary for the optimizer, including type and parameters.
+    Returns:
+        optimizer (torch.optim.Optimizer): The configured optimizer.
+    """
+    optimizers = {
+        "SGD": optim.SGD,
+        "Adam": optim.Adam,
+        "AdamW": optim.AdamW,
+        "RMSprop": optim.RMSprop,
+        # others can be added here
+    }
+
+    if optimizer_config["type"] not in optimizers:
+        raise ValueError(f"Unsupported optimizer type: {optimizer_config['type']}. Available options: {list(optimizers.keys())}")
+
+    return optimizers[optimizer_config["type"]](model.parameters(), **optimizer_config["params"])
+
+def get_scheduler(optimizer: optim.Optimizer, scheduler_config: dict):
+    """
+    Get the learning rate scheduler based on the provided configuration.
+    Args:
+        optimizer (torch.optim.Optimizer): The optimizer for which the scheduler is to be created.
+        scheduler_config (dict): Configuration dictionary for the scheduler, including type and parameters.
+    Returns:
+        scheduler (torch.optim.lr_scheduler._LRScheduler): The configured learning rate scheduler.
+    """
+    schedulers = {
+        "StepLR": StepLR,
+        "MultiStepLR": MultiStepLR,
+        "ExponentialLR": ExponentialLR,
+        "CosineAnnealingLR": CosineAnnealingLR,
+        "ReduceLROnPlateau": ReduceLROnPlateau,
+        # others can be added here
+    }
+
+    if scheduler_config["type"] not in schedulers:
+        raise ValueError(f"Unsupported scheduler type: {scheduler_config['type']}. Available options: {list(schedulers.keys())}")
+
+    return schedulers[scheduler_config["type"]](optimizer, **scheduler_config["params"])
