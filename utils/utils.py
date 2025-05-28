@@ -88,6 +88,11 @@ class EarlyStopping:
         self.mode = state_dict['mode']
 
 class TensorBoard:
+    """
+    A utility class for writing logs to TensorBoard.
+    Args:
+		log_dir (Path|str): Directory where TensorBoard logs will be saved.
+	"""
     def __init__(self, log_dir: Path|str = Path("outputs/logs")):
         self.log_dir = log_dir
         self.writer = None
@@ -97,12 +102,38 @@ class TensorBoard:
             self.writer = SummaryWriter(log_dir=self.log_dir)
 
     def write_scalar(self, title: str, value: float, epoch: int):
+        """
+        Write a single scalar value to TensorBoard.
+        Args:
+			title (str): The title of the scalar. (e.g. "train/loss")
+			value (float): The scalar value to log.
+			epoch (int): The epoch number for which the scalar is logged.
+		"""
         self.create_writer()
         self.writer.add_scalar(title, value, epoch)
 
     def write_scalars(self, title: str, values: dict, epoch: int):
+        """
+        Write multiple scalar values to TensorBoard.
+        Args:
+			title (str): The title of the scalars. (e.g. "train")
+			values (dict): A dictionary of scalar values to log, where keys are the names of the scalars.
+			epoch (int): The epoch number for which the scalars are logged.
+		"""
         self.create_writer()
         self.writer.add_scalars(title, values, epoch)
 
+    def flush(self):
+        """
+        Flush the TensorBoard writer to ensure all data is written to disk.
+        """
+        if self.writer is not None:
+            self.writer.flush()
+
     def close(self):
-        self.writer.close()
+        """
+		Close the TensorBoard writer.
+		"""
+        if self.writer is not None:
+            self.writer.close()
+			

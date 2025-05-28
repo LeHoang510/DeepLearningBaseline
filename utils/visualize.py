@@ -3,10 +3,6 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import matplotlib.pyplot as plt
 
-from dataset.birads_dataset import BiradsTransform, LABEL_PATHO_MAP, LABEL_TYPE_MAP
-
-LABEL_TYPE_MAP = {v: k for k, v in LABEL_TYPE_MAP.items()}
-LABEL_PATHO_MAP = {v: k for k, v in LABEL_PATHO_MAP.items()}
 
 def denormalize(tensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
     for t, m, s in zip(tensor, mean, std):

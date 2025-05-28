@@ -70,3 +70,32 @@ cd DeepLearningBaseline
     ```bash
     python utils/check_hardware.py
     ```
+
+# Usage
+## 1. Run the training script
+- You can run the training script by running the following command:
+
+    ```bash
+    python train.py --config configs/<config-file>.yaml
+    ```
+
+## 2. Run the evaluation script
+- You can run the evaluation script by running the following command:
+
+    ```bash
+    python evaluate.py --config configs/<config-file>.yaml
+    ```
+
+## 3. Run the inference script
+- You can run the inference script by running the following command:
+
+    ```bash
+    python inference.py --config configs/<config-file>.yaml
+    ```
+
+## 4. Run the tensorboard
+- You can run the tensorboard by running the following command:
+
+    ```bash
+    tensorboard --logdir=logs/<experiment-name>
+    ```
