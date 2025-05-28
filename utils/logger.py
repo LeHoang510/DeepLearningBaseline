@@ -1,6 +1,7 @@
 import os
 import logging
 from datetime import datetime
+from pathlib import Path
 
 class ColoredFormatter(logging.Formatter):
 
@@ -25,13 +26,13 @@ class ColoredFormatter(logging.Formatter):
 class Logger:
     _instance = None  # Singleton
 
-    def __new__(cls, input_name=None):
+    def __new__(cls, input_name: Path|str = None):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._init_logger(input_name)
         return cls._instance
 
-    def _init_logger(self, input_name):
+    def _init_logger(self, input_name: Path|str = None):
         timestamp = datetime.now().strftime("%d.%m.%Y_%H-%M-%S")
         base_folder = "logs"
 
@@ -72,20 +73,20 @@ class Logger:
             self.logger.addHandler(file_handler)
             self.logger.addHandler(console_handler)
 
-    def info(self, msg):
+    def info(self, msg: str):
         self.logger.info(msg, stacklevel=2)
 
-    def debug(self, msg):
+    def debug(self, msg: str):
         self.logger.debug(msg, stacklevel=2)
 
-    def warning(self, msg):
+    def warning(self, msg: str):
         self.logger.warning(msg, stacklevel=2)
 
-    def error(self, msg):
+    def error(self, msg: str):
         self.logger.error(msg, stacklevel=2)
-    
-    def critical(self, msg):
+
+    def critical(self, msg: str):
         self.logger.critical(msg, stacklevel=2)
 
-    def get_log_path(self):
+    def get_log_path(self) -> Path:
         return self.log_file

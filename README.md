@@ -64,3 +64,9 @@ cd DeepLearningBaseline
     poetry install
     ```
 
+## 2.3. Check hardware compatibility
+- You can check if your hardware by running the following command:
+
+    ```bash
+    python utils/check_hardware.py
+    ```
