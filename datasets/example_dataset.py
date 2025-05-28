@@ -1,6 +1,9 @@
 import torch
+import torchvision.transforms.functional as F
 from torch.utils.data import Dataset
-from torchvision import transforms
+from PIL import Image
+
+from utils.utils import load_json
 
 class ExampleTransform:
     """
@@ -14,24 +17,29 @@ class ExampleTransform:
             self.normalize
         ]
 
-    def __call__(self, sample):
+    def __call__(self, image, label=None):
         for transform in self.transforms:
-            sample = transform(sample)
-        return sample
+            image, label = transform(image, label)
+        return image, label
 
-    def resize(self, image, size=(512, 416)):
-        image = transforms.Resize(size)(image)
-        return image
-    
-    def to_tensor(self, image):
-        image = transforms.ToTensor()(image)
-        return image
-    
-    def normalize(self, image, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
-        image = transforms.Normalize(mean=mean, std=std)(image)
-        return image
+    def resize(self, image, label, size=(512, 416)):
+        image = F.resize(image, size)
+        if label is not None:
+            label['boxes'] = [
+                [int(bbox[0] * size[0] / image.size[0]), int(bbox[1] * size[1] / image.size[1]),
+                 int(bbox[2] * size[0] / image.size[0]), int(bbox[3] * size[1] / image.size[1])]
+                for bbox in label['boxes']
+            ]
+        return image, label
 
-    
+    def to_tensor(self, image, label):
+        image = F.to_tensor(image)
+        return image, label
+
+    def normalize(self, image, label, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
+        image = F.normalize(image, mean=mean, std=std)
+        return image, label
+
 class ExampleDataset(Dataset):
     """
     Example dataset class that can be used to load and process data.
@@ -42,13 +50,25 @@ class ExampleDataset(Dataset):
         self.data_source = data_source
         self.data = self.load_data()
         self.transform = transform
+    
+    def load_data(self):
+        data = load_json(self.data_source)
+        return data
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
         sample = self.data[idx]
-        return self.transform(sample)
+        image_path = sample['image_path']
+        label = sample['label']
+
+        image = Image.open(image_path).convert('RGB')
+
+        if self.transform is None:
+            image, label = self.transform(image, label)
+
+        return image, label
 
     @staticmethod
     def collate_fn(batch):
