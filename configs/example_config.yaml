@@ -1,10 +1,19 @@
 dataset_config:
-  type: ExampleDataset
-  params:
-    data_path: /path/to/data
-    batch_size: 64
-    shuffle: true
-    num_workers: 4
+  train:
+    type: ExampleDataset
+    dataset_params:
+      data_path: /path/to/train/data
+    dataloader_params: # Optional
+      batch_size: 64
+      shuffle: true
+
+  val:
+    type: ExampleDataset
+    dataset_params:
+      data_path: /path/to/val/data
+    dataloader_params: # Optional
+      batch_size: 1
+      shuffle: false
 
 model_config:
   type: ExampleModel

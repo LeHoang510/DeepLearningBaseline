@@ -17,7 +17,7 @@ def set_seed(seed: int = 24):
 	torch.backends.cudnn.deterministic = True
 	torch.backends.cudnn.benchmark = False
 
-def load_config(config_path: Path|str):
+def load_yaml(config_path: Path|str):
 	"""
     Load a YAML configuration file.
 	Args:

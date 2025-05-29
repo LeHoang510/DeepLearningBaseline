@@ -4,9 +4,11 @@ import torch
 import torch.nn as nn
 from torch import optim
 from torch.optim import lr_scheduler
+from torch.utils.data import DataLoader
 from utils.utils import EarlyStopping, TensorBoard
 
 from models.example_model import ExampleModel
+from datasets.example_dataset import ExampleDataset, ExampleTransform
 
 def load_model(model_path: Path|str, device: torch.device):
     """
@@ -45,13 +47,33 @@ def prepare_training(config: dict, output_dir: Path|str):
     tensorboard = TensorBoard(log_dir=tensorboard_path)
     model = get_model(model_config)
     optimizer = get_optimizer(model, train_config["optimizer"])
-    scheduler = get_scheduler(optimizer, train_config["scheduler"]) if train_config["scheduler"] else None
-    early_stopper = EarlyStopping(**train_config["early_stopping"]) if train_config["early_stopping"] else None
+    scheduler = get_scheduler(optimizer, train_config["scheduler"]) if "scheduler" in train_config else None
+    early_stopper = EarlyStopping(**train_config["early_stopping"]) if "early_stopping" in train_config else None
     return model, optimizer, scheduler, early_stopper, tensorboard
 
-def prepare_dataset(config:dict):
+def prepare_dataset(dataset_config: dict):
+    """
+    Prepare the dataset and dataloader based on the provided configuration.
+    Args:
+        dataset_config (dict): Configuration dictionary for the dataset, including type and parameters.
+    Returns:
+        dataset (torch.utils.data.Dataset): The instantiated dataset.
+        dataloader (torch.utils.data.DataLoader): The dataloader for the dataset.
+    """
+    config = dataset_config
+    datasets = {
+        "ExampleDataset": ExampleDataset,
+        # "VOC": VOCDataset,
+        # other datasets can be added here
+    }
 
-    pass
+    if config["type"] not in datasets:
+        raise ValueError(f"Unsupported dataset type: {config['type']}. Available options: {list(datasets.keys())}")
+    
+    dataset = datasets[config["type"]](**config["dataset_params"])
+    dataloader = DataLoader(dataset, **config["dataloader_params"]) if "dataloader_params" in config else None
+
+    return dataset, dataloader
 
 def get_model(model_config: dict):
     """
