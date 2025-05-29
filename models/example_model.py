@@ -23,17 +23,26 @@ class ExampleModel(nn.Module):
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(dropout_rate)
 
-    def forward(self, x):
+    def forward(self, images, targets=None):
         """
         Forward pass of the model.
         Args:
-            x (torch.Tensor): Input tensor.
+            images (torch.Tensor): Input images.
+            targets (torch.Tensor, optional): Target labels for training. Defaults to None.
         Returns:
-            torch.Tensor: Output tensor.
+            torch.Tensor: Output predictions.
         """
-        x = self.fc_1(x)
+        x = self.fc_1(images)
         x = self.relu(x)
         x = self.dropout(x)
         x = self.fc_2(x)
+
+        if targets is not None:
+            loss_fn = nn.CrossEntropyLoss()
+            loss = loss_fn(x, targets)
+            return x, loss
+        
         return x
+
+        
     

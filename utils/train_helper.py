@@ -71,7 +71,7 @@ def prepare_dataset(dataset_config: dict):
         raise ValueError(f"Unsupported dataset type: {config['type']}. Available options: {list(datasets.keys())}")
     
     dataset = datasets[config["type"]](**config["dataset_params"])
-    dataloader = DataLoader(dataset, **config["dataloader_params"]) if "dataloader_params" in config else None
+    dataloader = DataLoader(dataset, **config["dataloader_params"], collate_fn=dataset.collate_fn) if "dataloader_params" in config else None
 
     return dataset, dataloader
 

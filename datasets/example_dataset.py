@@ -61,7 +61,10 @@ class ExampleDataset(Dataset):
     def __getitem__(self, idx):
         sample = self.data[idx]
         image_path = sample['image_path']
-        label = sample['label']
+        label = {
+            'boxes':  torch.as_tensor(sample['boxes'], dtype=torch.float32),
+            'labels': torch.as_tensor(sample['labels'], dtype=torch.int64)
+        }
 
         image = Image.open(image_path).convert('RGB')
 
@@ -84,10 +87,7 @@ class ExampleDataset(Dataset):
 
         for img, target in batch:
             images.append(img)
-            targets.append({
-                'boxes': torch.as_tensor(target['boxes'], dtype=torch.float32),
-                'labels': torch.as_tensor(target['labels'], dtype=torch.int64),
-            })
+            targets.append(target)
         images = torch.stack(images, dim=0)
         
         return images, targets 
