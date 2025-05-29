@@ -71,9 +71,6 @@ def train(config_path: Path|str, device: str|torch.device):
     if val_dataset:
         logger.info(f"Validation dataset size: {len(val_dataset)}")
 
-    # Value for early stopping
-    best_val_metric = float('-inf') if train_config["early_stopping"]["mode"] == "max" else float('inf')
-
     # Training loop
     for epoch in range(start_epoch, total_epochs):
         epoch_start_time = time.time()
@@ -130,8 +127,8 @@ def train(config_path: Path|str, device: str|torch.device):
             f"Average Loss: {epoch_loss:.4f}, "
             f"Learning rate: {optimizer.param_groups[0]['lr']:.6f}"
         )
-        tensorboard.write_scalar("Train/Loss", epoch_loss, epoch + 1)
-        tensorboard.write_scalar("Train/Learning_Rate", optimizer.param_groups[0]['lr'], epoch + 1)
+        tensorboard.write_scalar("Loss/train", epoch_loss, epoch + 1)
+        tensorboard.write_scalar("Learning rate", optimizer.param_groups[0]['lr'], epoch + 1)
 
         # Save checkpoint
         torch.save(checkpoint, output_dir / f"checkpoint_epoch_{epoch + 1}.pth")
@@ -146,7 +143,19 @@ def train(config_path: Path|str, device: str|torch.device):
         # Validation
         if val_loader:
             logger.info("Starting validation")
-            # TODO: Implement validation logic
+            val_metric = evaluate(model, val_loader, device)
+
+            logger.info(f"Validation metric: {val_metric:.4f}")
+            tensorboard.write_scalar("Loss/Val", val_metric, epoch + 1)
+
+            # Early stopping check
+            if early_stopper:
+                if early_stopper(val_metric):
+                    torch.save(checkpoint, output_dir / "best_model.pth")
+                    logger.info(f"New best model at epoch {epoch + 1} saved!")
+                if early_stopper.status():
+                    logger.info("Early stopping triggered, stopping training.")
+                    break
         
         tensorboard.flush()
         

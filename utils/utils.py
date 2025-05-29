@@ -43,16 +43,14 @@ def load_json(json_path: Path|str):
 
 class EarlyStopping:
     """
-	Early stopping to stop training when a monitored metric has stopped improving for a specified number of epochs.
-	Args:
-		patience (int): Number of epochs with no improvement after which training will be stopped.
-		min_delta (float): Minimum change in the monitored metric to qualify as an improvement.
-		mode (str): One of {'min', 'max'}. 
-          In 'min' mode, training will stop when the quantity monitored has stopped decreasing; 
-          In 'max' mode, it will stop when the quantity monitored has stopped increasing.
-	Returns:
-		bool: True if training should be stopped, False otherwise.
-	"""
+    A utility class for early stopping during training.
+    Args:
+        patience (int): Number of epochs with no improvement after which training will be stopped.
+        min_delta (float): Minimum change in the monitored quantity to qualify as an improvement.
+        mode (str): One of {'min', 'max'}. 
+            In 'min' mode, training will stop when the quantity monitored has stopped decreasing; 
+            In 'max' mode, it will stop when the quantity monitored has stopped increasing.
+    """
     def __init__(self, patience: int = 5, min_delta: float = 0.0, mode: str = 'max'):
         self.patience = patience
         self.min_delta = min_delta
@@ -66,14 +64,28 @@ class EarlyStopping:
             self.compare_op = lambda x, y: x < y - min_delta
     
     def __call__(self, val_metric: float):
+        """
+        Call method to update the early stopping state.
+        Args:
+            val_metric (float): The validation metric to monitor.
+        Returns:
+            bool: True if an improvement is found, False otherwise.
+        """
         if self.compare_op(val_metric, self.best_metric):
             self.best_metric = val_metric
             self.counter = 0
+            return True # Improvement found, reset counter
         else:
             self.counter += 1
-            if self.counter >= self.patience:
-                return True
-        return False
+            return False # No improvement found, increment counter
+
+    def status(self):
+        """
+        Check if the early stopping condition is met.
+        Returns:
+            bool: True if the patience limit has been reached, False otherwise.
+        """
+        return self.counter >= self.patience
     
     def state_dict(self):
         return {
