@@ -14,9 +14,14 @@ from utils.logger import Logger
 from utils.check_hardware import check_hardware
 from utils.utils import load_yaml
 from utils.train_helper import prepare_training, prepare_dataset
+from utils.evaluate_helper import evaluate
 
 def train(config_path: Path|str, device: str|torch.device):
     """
+    Main training function to train a model based on the provided configuration.
+    Args:
+        config_path (Path|str): Path to the YAML configuration file.
+        device (str|torch.device): Device to run the training on (e.g., 'cuda' or 'cpu').
     """
     logger = Logger()
     logger.info("Training started...")
