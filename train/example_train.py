@@ -143,7 +143,15 @@ def train(config_path: Path|str, device: str|torch.device):
                 prev_checkpoint.unlink()
                 logger.debug(f"Deleted previous checkpoint: {prev_checkpoint}")
         
-    
+        # Validation
+        if val_loader:
+            logger.info("Starting validation")
+            # TODO: Implement validation logic
+        
+        tensorboard.flush()
+        
+    logger.info("Training completed successfully!")
+    tensorboard.close()
 
 if __name__ == "__main__":
     # Check hardware compatibility
