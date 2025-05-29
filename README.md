@@ -65,7 +65,7 @@ cd DeepLearningBaseline
     ```
 
 ## 2.3. Check hardware compatibility
-- You can check if your hardware by running the following command:
+- You can check if your hardware is compatible by running the following command:
 
     ```bash
     python utils/check_hardware.py
@@ -73,7 +73,7 @@ cd DeepLearningBaseline
 
 # Usage
 ## 1. Run the training script
-- You can run the training script by running the following command:
+- You can run the training script by running the following command (modify verbose=False to verbose=True to see more details of hardware information during training process):
 
     ```bash
     python train.py --config configs/<config-file>.yaml

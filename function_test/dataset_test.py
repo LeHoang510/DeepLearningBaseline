@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-root_dir = Path(__file__).parent.parent  # Lên 2 cấp từ vị trí hiện tại
+root_dir = Path(__file__).parent.parent  
 sys.path.append(str(root_dir))
 
 import torch
