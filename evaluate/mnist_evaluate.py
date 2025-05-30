@@ -15,10 +15,7 @@ def calculate_mnist_accuracy(predictions, targets):
     """
     # Convert list of predictions to tensor
     preds_tensor = torch.stack(predictions)
-    
-    # Convert list of target dictionaries to tensor
-    # Assuming targets is list of dicts like [{'labels': tensor(3)}, ...]
-    targets_tensor = torch.stack([t['labels'] for t in targets])
+    targets_tensor = torch.stack(targets)
     
     # Get predicted classes (argmax of log probabilities)
     _, pred_classes = preds_tensor.max(dim=1)

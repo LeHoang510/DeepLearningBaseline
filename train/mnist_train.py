@@ -94,8 +94,10 @@ def train(config_path: Path|str, device: str|torch.device):
         for batch_idx, (images, targets) in enumerate(train_loader_tqdm):
             try:
                 images = images.to(device)
-                targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
-                
+                targets = targets.to(device)
+                # print("images shape:", images.shape)
+                # print("targets shape:", targets.shape)
+                # exit(0)
                 # In this example, we assume the model returns predictions and a loss dictionary
                 # Modify this according to your model's forward method (do the same for the evaluate function)
                 predictions, loss_dict = model(images, targets)
@@ -176,5 +178,5 @@ def train(config_path: Path|str, device: str|torch.device):
 if __name__ == "__main__":
     logger = Logger("train")
     device, is_cuda = check_hardware(verbose=False)
-    config_path = Path("config/mnist_train_config.yaml")
+    config_path = Path("configs/mnist_train_config.yaml")
     train(config_path, device=device)

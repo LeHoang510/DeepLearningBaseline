@@ -8,8 +8,8 @@ dataset_config:
     type: MnistDataset
     dataset_params:  
       root: "./data"
-      split: True
-      download: True
+      split: true
+      download: true
     dataloader_params: 
       batch_size: 64
       shuffle: true
@@ -19,8 +19,8 @@ dataset_config:
     type: MnistDataset
     dataset_params:
       root: "./data"
-      split: False
-      download: True
+      split: false
+      download: true
     dataloader_params:
       batch_size: 100
       shuffle: false
@@ -35,18 +35,17 @@ train_config:
   grad_clip: 5.0
 
   optimizer: 
-    type: ADAM
+    type: Adam
     params:
       lr: 0.01
       weight_decay: 0.0001
-      amsgrad: False
+      amsgrad: false
 
   scheduler:
-    type: ReduceLROnPlateau
+    type: StepLR
     params:
-      mode: 'max'
-      factor: 0.1
-      patience: 2
+      step_size: 5     # Giảm learning rate sau mỗi 5 epoch
+      gamma: 0.5   
 
   early_stopping:
     patience: 3

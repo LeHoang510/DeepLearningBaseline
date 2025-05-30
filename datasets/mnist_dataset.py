@@ -34,16 +34,17 @@ class MnistDataset(Dataset):
     This class extends the PyTorch Dataset class and provides methods to load data,
     apply transformations, and retrieve samples.
     """
-    def __init__(self, root="./data", split=True, transform=MnistTransform()):
+    def __init__(self, root="./data", split=True, download=True, transform=MnistTransform()):
         self.root = root
         self.split = split
+        self.download = download
         self.data = self.load_data()
         self.transform = transform
     
     def load_data(self):
         data = datasets.MNIST(root=self.root,
                                train=self.split,
-                               download=True,
+                               download=self.download,
                                transform=None)
         return data
 
@@ -52,10 +53,10 @@ class MnistDataset(Dataset):
 
     def __getitem__(self, idx):
         image, target = self.data[idx]
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
+        if image.mode != 'L':
+            image = image.convert('L')
 
-        if self.transform is None:
+        if self.transform is not None:
             image, target = self.transform(image, target)
 
         return image, target
@@ -69,12 +70,8 @@ class MnistDataset(Dataset):
         Returns:
             tuple: A tuple containing a batch of images and their corresponding targets.
         """
-        images = []
-        targets = []
-
-        for img, target in batch:
-            images.append(img)
-            targets.append(target)
-        images = torch.stack(images, dim=0)
+        images, targets = zip(*batch)  # Unzip list of tuples
+        images = torch.stack(images)   # Stack into tensor [B, C, H, W]
+        targets = torch.tensor(targets)  # Convert targets to tensor [B]
         
         return images, targets 

@@ -1,7 +1,9 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
 - TODO:
-+ Base on object detection task
++ Save the config file
++ Test pretrained models
++ Test resume training
 
 
 # Set up + Installation
