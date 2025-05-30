@@ -17,9 +17,4 @@ def calculate_map(predictions, targets):
     
     results = metric.compute()
 
-    return {
-            "map": results["map"].item(),
-            "map_50": results["map_50"].item(),
-            "map_75": results["map_75"].item(),
-            "ap_per_class": results["map_per_class"].tolist()
-        }
+    return results["map"].item()

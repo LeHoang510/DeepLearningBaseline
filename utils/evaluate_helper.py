@@ -2,14 +2,17 @@ import torch
 from tqdm import tqdm
 
 from models.example_model import ExampleModel
+from models.mnist_model import MnistModel
 from evaluate.example_evaluate import calculate_map
+from evaluate.mnist_evaluate import calculate_mnist_accuracy
 
 evaluate_function = {
     ExampleModel: calculate_map,
+    MnistModel: calculate_mnist_accuracy,
 }
 
 @torch.no_grad()
-def evaluate(model, dataloader, device, evaluate_params=None):
+def evaluate(model, dataloader, device, evaluate_params={}):
     model.eval()
     all_preds = []
     all_targets = []
@@ -27,12 +30,8 @@ def evaluate(model, dataloader, device, evaluate_params=None):
             all_targets.extend(targets)
             total_loss += losses.item()
     
-    # Calculate average loss
+    # Calculate average loss and metric
     avg_loss = total_loss / len(dataloader)
-
-    if evaluate_params is not None:
-        metric = evaluate_function[type(model)](all_preds, all_targets, **evaluate_params)
-    else:
-        metric = evaluate_function[type(model)](all_preds, all_targets)
+    metric = evaluate_function[type(model)](all_preds, all_targets, **evaluate_params)
 
     return avg_loss, metric

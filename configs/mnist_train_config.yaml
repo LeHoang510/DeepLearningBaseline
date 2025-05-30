@@ -1,0 +1,54 @@
+path_config:  
+  output_dir: outputs/train/mnist_experiment
+  checkpoint_path: null   # Optional
+  pretrained_path: null   # Optional
+
+dataset_config: 
+  train:
+    type: MnistDataset
+    dataset_params:  
+      root: "./data"
+      split: True
+      download: True
+    dataloader_params: 
+      batch_size: 64
+      shuffle: true
+      num_workers: 4
+
+  val:    # Optional
+    type: MnistDataset
+    dataset_params:
+      root: "./data"
+      split: False
+      download: True
+    dataloader_params:
+      batch_size: 100
+      shuffle: false
+      num_workers: 4
+
+model_config:
+  type: MnistModel
+
+train_config:
+  learning_rate: 0.01
+  num_epochs: 15
+  grad_clip: 5.0
+
+  optimizer: 
+    type: ADAM
+    params:
+      lr: 0.01
+      weight_decay: 0.0001
+      amsgrad: False
+
+  scheduler:
+    type: ReduceLROnPlateau
+    params:
+      mode: 'max'
+      factor: 0.1
+      patience: 2
+
+  early_stopping:
+    patience: 3
+    min_delta: 0.001
+    mode: max

@@ -1,0 +1,80 @@
+import torch
+import torchvision.transforms.functional as F
+from torch.utils.data import Dataset
+from torchvision import datasets
+from PIL import Image
+
+class MnistTransform:
+    """
+    Transform class for MNIST dataset.
+    Applies a series of transformations to the images, including converting to tensor and normalizing.
+    """
+    def __init__(self):
+        self.transforms = [
+            self.to_tensor,
+            self.normalize
+        ]
+
+    def __call__(self, image, target=None):
+        for transform in self.transforms:
+            image, target = transform(image, target)
+        return image, target
+
+    def to_tensor(self, image, target):
+        image = F.to_tensor(image)
+        return image, target
+
+    def normalize(self, image, target, mean=(0.1307,), std=(0.3081,)):
+        image = F.normalize(image, mean=mean, std=std)
+        return image, target
+
+class MnistDataset(Dataset):
+    """
+    Custom dataset class for loading the MNIST dataset.
+    This class extends the PyTorch Dataset class and provides methods to load data,
+    apply transformations, and retrieve samples.
+    """
+    def __init__(self, root="./data", split=True, transform=MnistTransform()):
+        self.root = root
+        self.split = split
+        self.data = self.load_data()
+        self.transform = transform
+    
+    def load_data(self):
+        data = datasets.MNIST(root=self.root,
+                               train=self.split,
+                               download=True,
+                               transform=None)
+        return data
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        image, target = self.data[idx]
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+
+        if self.transform is None:
+            image, target = self.transform(image, target)
+
+        return image, target
+
+    @staticmethod
+    def collate_fn(batch):
+        """
+        Custom collate function to handle batching of data.
+        Args:
+            batch (list): List of samples from the dataset.
+        Returns:
+            tuple: A tuple containing a batch of images and their corresponding targets.
+        """
+        images = []
+        targets = []
+
+        for img, target in batch:
+            images.append(img)
+            targets.append(target)
+        images = torch.stack(images, dim=0)
+        
+        return images, targets 

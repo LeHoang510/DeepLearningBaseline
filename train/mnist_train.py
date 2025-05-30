@@ -29,13 +29,13 @@ def train(config_path: Path|str, device: str|torch.device):
 
     # Load configuration
     config = load_yaml(config_path)
-    path_config = config["path_config"]
-    dataset_config = config["dataset_config"]
-    train_config = config["train_config"]
-    evaluate_config = config.get("evaluate_config", None)
+    path_config = config.get("path_config", {})
+    dataset_config = config.get("dataset_config", {})
+    train_config = config.get("train_config", {})
+    evaluate_config = config.get("evaluate_config", {})
 
-    checkpoint_path = Path(path_config.get("checkpoint_path", None))
-    pretrained_path = Path(path_config.get("pretrained_path", None))
+    checkpoint_path = Path(path_config["checkpoint_path"]) if path_config.get("checkpoint_path") else None
+    pretrained_path = Path(path_config["pretrained_path"]) if path_config.get("pretrained_path") else None
     output_dir = Path(path_config.get("output_dir", "outputs/train/experiment"))
     
     os.makedirs(output_dir, exist_ok=True)
@@ -153,12 +153,10 @@ def train(config_path: Path|str, device: str|torch.device):
             logger.info("Starting validation")
             
             # val_metric_dict must be a dictionary with metric names as keys and the first metric as the main metric
-            val_loss, val_metric_dict = evaluate(model, val_loader, device, evaluate_params=evaluate_config)
-            val_metric = val_metric_dict[next(iter(val_metric_dict))]
+            val_loss, val_metric = evaluate(model, val_loader, device, evaluate_params=evaluate_config)
 
-            for metric_name, metric_value in val_metric_dict.items():
-                logger.info(f"Validation {metric_name}: {metric_value:.4f}")
-                tensorboard.write_scalar(f"Val/{metric_name}", metric_value, epoch + 1)
+            logger.info(f"Validation metric: {val_metric:.4f}")
+            tensorboard.write_scalar(f"Val/metric", val_metric, epoch + 1)
             tensorboard.write_scalar("Loss/val", val_loss, epoch + 1)
 
             # Early stopping check
@@ -178,5 +176,5 @@ def train(config_path: Path|str, device: str|torch.device):
 if __name__ == "__main__":
     logger = Logger("train")
     device, is_cuda = check_hardware(verbose=False)
-    config_path = Path("config/example_config.yaml")
+    config_path = Path("config/mnist_train_config.yaml")
     train(config_path, device=device)

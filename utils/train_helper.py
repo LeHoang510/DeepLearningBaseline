@@ -8,7 +8,9 @@ from torch.utils.data import DataLoader
 from utils.utils import EarlyStopping, TensorBoard
 
 from models.example_model import ExampleModel
-from datasets.example_dataset import ExampleDataset, ExampleTransform
+from models.mnist_model import MnistModel
+from datasets.example_dataset import ExampleDataset
+from datasets.mnist_dataset import MnistDataset
 
 def load_model(model_path: Path|str, device: torch.device):
     """
@@ -40,15 +42,15 @@ def prepare_training(config: dict, output_dir: Path|str):
     """
     output_dir = Path(output_dir)
 
-    model_config = config["model_config"]
-    train_config = config["train_config"]
+    model_config = config.get("model_config", {})
+    train_config = config.get("train_config", {})
     tensorboard_path = output_dir / "tensorboard"
 
     tensorboard = TensorBoard(log_dir=tensorboard_path)
     model = get_model(model_config)
-    optimizer = get_optimizer(model, train_config["optimizer"])
-    scheduler = get_scheduler(optimizer, train_config["scheduler"]) if "scheduler" in train_config else None
-    early_stopper = EarlyStopping(**train_config["early_stopping"]) if "early_stopping" in train_config else None
+    optimizer = get_optimizer(model, train_config.get("optimizer", {}))
+    scheduler = get_scheduler(optimizer, train_config.get("scheduler", {})) if "scheduler" in train_config else None
+    early_stopper = EarlyStopping(**train_config.get("early_stopping", {})) if "early_stopping" in train_config else None
     return model, optimizer, scheduler, early_stopper, tensorboard
 
 def prepare_dataset(dataset_config: dict):
@@ -63,15 +65,17 @@ def prepare_dataset(dataset_config: dict):
     config = dataset_config
     datasets = {
         "ExampleDataset": ExampleDataset,
+        "MnistDataset": MnistDataset,
         # "VOC": VOCDataset,
         # other datasets can be added here
     }
-
+    if "type" not in config:
+        raise ValueError("Dataset type must be specified in the configuration.")
     if config["type"] not in datasets:
         raise ValueError(f"Unsupported dataset type: {config['type']}. Available options: {list(datasets.keys())}")
-    
-    dataset = datasets[config["type"]](**config["dataset_params"])
-    dataloader = DataLoader(dataset, **config["dataloader_params"], collate_fn=dataset.collate_fn) if "dataloader_params" in config else None
+
+    dataset = datasets[config["type"]](**config.get("dataset_params", {}))
+    dataloader = DataLoader(dataset, **config.get("dataloader_params", {}), collate_fn=dataset.collate_fn) if "dataloader_params" in config else None
 
     return dataset, dataloader
 
@@ -85,13 +89,15 @@ def get_model(model_config: dict):
     """
     models = {
         "ExampleModel": ExampleModel,
+        "MnistModel": MnistModel, 
         # other models can be added here
     }
-
+    if "type" not in model_config:
+        raise ValueError("Model type must be specified in the configuration.")
     if model_config["type"] not in models:
         raise ValueError(f"Unsupported model type: {model_config['type']}. Available options: {list(models.keys())}")
-
-    return models[model_config["type"]](**model_config["params"])
+    
+    return models[model_config["type"]](**model_config.get("params", {}))
 
 def get_optimizer(model: nn.Module, optimizer_config: dict):
     """
@@ -109,11 +115,12 @@ def get_optimizer(model: nn.Module, optimizer_config: dict):
         "RMSprop": optim.RMSprop,
         # others can be added here
     }
-
+    if "type" not in optimizer_config:
+        raise ValueError("Optimizer type must be specified in the configuration.")
     if optimizer_config["type"] not in optimizers:
         raise ValueError(f"Unsupported optimizer type: {optimizer_config['type']}. Available options: {list(optimizers.keys())}")
 
-    return optimizers[optimizer_config["type"]](model.parameters(), **optimizer_config["params"])
+    return optimizers[optimizer_config["type"]](model.parameters(), **optimizer_config.get("params", {}))
 
 def get_scheduler(optimizer: optim.Optimizer, scheduler_config: dict):
     """
@@ -134,8 +141,9 @@ def get_scheduler(optimizer: optim.Optimizer, scheduler_config: dict):
         "OneCycleLR": lr_scheduler.OneCycleLR,
         # others can be added here
     }
-
+    if "type" not in scheduler_config:
+        raise ValueError("Scheduler type must be specified in the configuration.")
     if scheduler_config["type"] not in schedulers:
         raise ValueError(f"Unsupported scheduler type: {scheduler_config['type']}. Available options: {list(schedulers.keys())}")
 
-    return schedulers[scheduler_config["type"]](optimizer, **scheduler_config["params"])
+    return schedulers[scheduler_config["type"]](optimizer, **scheduler_config.get("params", {}))
