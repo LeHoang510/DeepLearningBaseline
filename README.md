@@ -1,5 +1,7 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
+- TODO:
++ Base on object detection task
 
 
 # Set up + Installation
