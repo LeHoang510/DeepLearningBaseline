@@ -1,6 +1,7 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
 - TODO:
++ Add weight initialization
 + Save the config file
 + Test pretrained models
 + Test resume training
