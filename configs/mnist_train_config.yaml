@@ -44,7 +44,7 @@ train_config:
   scheduler:
     type: StepLR
     params:
-      step_size: 5     # Giảm learning rate sau mỗi 5 epoch
+      step_size: 5
       gamma: 0.5   
 
   early_stopping:

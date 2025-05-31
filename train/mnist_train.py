@@ -1,5 +1,6 @@
 import os
 import time
+import shutil
 import sys
 from pathlib import Path
 
@@ -38,6 +39,9 @@ def train(config_path: Path|str, device: str|torch.device):
     pretrained_path = Path(path_config["pretrained_path"]) if path_config.get("pretrained_path") else None
     output_dir = Path(path_config.get("output_dir", "outputs/train/experiment"))
     
+    # Delete output directory if it exists
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
     os.makedirs(output_dir, exist_ok=True)
     logger.info(f"Output directory: {output_dir}")
 
