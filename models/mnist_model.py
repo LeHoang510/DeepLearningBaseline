@@ -12,6 +12,8 @@ class MnistModel(nn.Module):
         self.relu = nn.ReLU()
         self.log_softmax = nn.LogSoftmax(dim=1)
 
+        self._init_weights()
+
     def forward(self, image, target=None):
         """        Forward pass of the model.
         Args:
@@ -34,3 +36,10 @@ class MnistModel(nn.Module):
         
         return x
 
+    def _init_weights(self):
+        """Initialize weights of the model."""
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
