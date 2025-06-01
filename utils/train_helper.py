@@ -137,7 +137,7 @@ def get_scheduler(optimizer: optim.Optimizer, scheduler_config: dict):
         "MultiStepLR": lr_scheduler.MultiStepLR,
         "ExponentialLR": lr_scheduler.ExponentialLR,
         "CosineAnnealingLR": lr_scheduler.CosineAnnealingLR,
-        "ReduceLROnPlateau": lr_scheduler.ReduceLROnPlateau,
+        "ReduceLROnPlateau": lr_scheduler.ReduceLROnPlateau, # need to modify step in training loop
         "OneCycleLR": lr_scheduler.OneCycleLR,
         # others can be added here
     }

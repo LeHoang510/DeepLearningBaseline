@@ -1,10 +1,8 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
 - TODO:
-+ Save the config file
 + Test pretrained models
 + Test resume training
-
 
 # Set up + Installation
 ## 1. Clone the repository
