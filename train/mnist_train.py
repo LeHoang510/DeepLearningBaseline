@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 from utils.logger import Logger
 from utils.check_hardware import check_hardware
-from utils.utils import load_yaml
+from utils.utils import load_yaml, save_yaml
 from utils.train_helper import prepare_training, prepare_dataset
 from utils.evaluate_helper import evaluate
 
@@ -44,6 +44,8 @@ def train(config_path: Path|str, device: str|torch.device):
         shutil.rmtree(output_dir)
     os.makedirs(output_dir, exist_ok=True)
     logger.info(f"Output directory: {output_dir}")
+    save_yaml(config, output_dir / config_path.name)
+    logger.info("Configuration saved to output directory.")
 
     # Prepare training
     model, optimizer, scheduler, early_stopper, tensorboard = prepare_training(config, output_dir)

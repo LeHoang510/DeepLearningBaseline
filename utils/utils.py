@@ -41,6 +41,16 @@ def load_json(json_path: Path|str):
 		data = json.load(f)
 	return data
 
+def save_yaml(data: dict, save_path: Path|str):
+    """
+    Save a dictionary to a YAML file.
+    Args:
+        data (dict): Data to save.
+        save_path (Path|str): Path where the YAML file will be saved.
+    """
+    with open(save_path, 'w') as f:
+        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+
 class EarlyStopping:
     """
     A utility class for early stopping during training.
