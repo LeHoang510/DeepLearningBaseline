@@ -1,6 +1,8 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
 - TODO:
++ rewrite evaluate function and yaml config
+-> metrics select base on input (metric -> function -> call)
 + Test pretrained models
 + Test resume training
 

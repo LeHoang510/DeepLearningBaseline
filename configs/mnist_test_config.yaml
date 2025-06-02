@@ -1,6 +1,6 @@
 path_config:  
-  output_dir: outputs/train/mnist_experiment
-  checkpoint_path: null   
+  output_dir: outputs/test/mnist_experiment
+  checkpoint_path: outputs/train/mnist_experiment/best_model.pth  # Required
 
 dataset_config: 
   test:
