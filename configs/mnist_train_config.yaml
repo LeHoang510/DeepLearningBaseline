@@ -51,3 +51,7 @@ train_config:
     patience: 3
     min_delta: 0.001
     mode: max
+
+evaluate_config:
+  metrics:
+    - 

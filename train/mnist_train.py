@@ -101,9 +101,7 @@ def train(config_path: Path|str, device: str|torch.device):
             try:
                 images = images.to(device)
                 targets = targets.to(device)
-                # print("images shape:", images.shape)
-                # print("targets shape:", targets.shape)
-                # exit(0)
+                
                 # In this example, we assume the model returns predictions and a loss dictionary
                 # Modify this according to your model's forward method (do the same for the evaluate function)
                 predictions, loss_dict = model(images, targets)

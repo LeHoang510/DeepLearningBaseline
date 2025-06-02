@@ -1,8 +1,10 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
 - TODO:
++ rewrite the losses in train script
 + rewrite evaluate function and yaml config
 -> metrics select base on input (metric -> function -> call)
++ rewrite validation step 
 + Test pretrained models
 + Test resume training
 
