@@ -53,5 +53,12 @@ train_config:
     mode: max
 
 evaluate_config:
-  metrics:
-    - 
+  metrics: 
+    - function: accuracy_mnist
+      params: # Custom and Optional
+        average: macro
+    - function: f1_score_mnist
+      params: # Custom and Optional
+        average: macro
+
+  priority_metric: accuracy # Required

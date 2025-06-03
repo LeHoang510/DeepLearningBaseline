@@ -89,8 +89,7 @@ def train(config_path: Path|str, device: str|torch.device):
         logger.info(f"Epoch {epoch + 1}/{total_epochs}")
         model.train()
         # Reset loss
-        total_loss = 0.0
-        individual_losses = {}
+        all_losses = {}
 
         train_loader_tqdm = tqdm(
             train_loader,
@@ -113,18 +112,18 @@ def train(config_path: Path|str, device: str|torch.device):
                     nn.utils.clip_grad_norm_(model.parameters(), train_config["gradient_clip"])
                 optimizer.step()
 
-                total_loss += losses.item()
-
-                # Initialize individual_losses if not done yet (first batch)
-                if not individual_losses:
-                    individual_losses = {k: 0.0 for k in loss_dict.keys()}
-                # Accumulate individual losses
+                # Initialize all_losses if not done yet (first batch)
+                if not all_losses:
+                    all_losses = {k: 0.0 for k in loss_dict.keys()}
+                    all_losses["total_loss"] = 0.0
+                # Accumulate all_losses
                 for k, v in loss_dict.items():
-                    individual_losses[k] += v.item()
+                    all_losses[k] += v.item()
+                all_losses["total_loss"] += losses.item()
 
                 train_loader_tqdm.set_postfix({
                     "batch_loss": f"{losses.item():.4f}",
-                    "avg_loss": f"{total_loss / (batch_idx + 1):.4f}",
+                    "avg_loss": f"{all_losses['total_loss'] / (batch_idx + 1):.4f}",
                 })
             except Exception as e:
                 logger.error(f"Error during training step {batch_idx}: {e}")
@@ -132,8 +131,7 @@ def train(config_path: Path|str, device: str|torch.device):
         
         # End of epoch
         epoch_duration = time.time() - epoch_start_time
-        epoch_total_loss = total_loss / len(train_loader)
-        epoch_individual_losses = {key: individual_losses[key] / len(train_loader) for key in individual_losses}
+        epoch_all_losses = {key: all_losses[key] / len(train_loader) for key in all_losses}
 
         scheduler.step() if scheduler else None
         checkpoint = {
@@ -147,13 +145,12 @@ def train(config_path: Path|str, device: str|torch.device):
         # Save checkpoint, write to TensorBoard
         logger.info(
             f"Epoch {epoch + 1} completed in {epoch_duration:.2f}s, "
-            f"Average Loss: {epoch_total_loss:.4f}, "
+            f"Average Loss: {epoch_all_losses['total_loss']:.4f}, "
             f"Learning rate: {optimizer.param_groups[0]['lr']:.6f}"
         )
-        logger.info(f"Individual Losses: {', '.join([f'{k}: {v:.4f}' for k, v in epoch_individual_losses.items()])}")
-        tensorboard.write_scalar("Loss/train", epoch_total_loss, epoch + 1)
+        logger.info(f"Individual Losses: {', '.join([f'{k}: {v:.4f}' for k, v in epoch_all_losses.items()])}")
+        tensorboard.write_scalars("Loss/train", epoch_all_losses, epoch + 1)
         tensorboard.write_scalar("Learning rate", optimizer.param_groups[0]['lr'], epoch + 1)
-        tensorboard.write_scalars("Loss/train_individual", epoch_individual_losses, epoch + 1)
 
         # Save checkpoint
         torch.save(checkpoint, output_dir / f"checkpoint_epoch_{epoch + 1}.pth")
@@ -170,11 +167,13 @@ def train(config_path: Path|str, device: str|torch.device):
             logger.info("Starting validation")
             
             # val_metric_dict must be a dictionary with metric names as keys and the first metric as the main metric
-            val_loss, val_metric = evaluate(model, val_loader, device, evaluate_params=evaluate_config)
+            val_loss, val_metric = evaluate(model, val_loader, device, metrics=evaluate_config["metrics"])
 
-            logger.info(f"Validation metric: {val_metric:.4f}")
-            tensorboard.write_scalar(f"Val/metric", val_metric, epoch + 1)
-            tensorboard.write_scalar("Loss/val", val_loss, epoch + 1)
+            logger.info(f"Validation metric: {val_metric[evaluate_config['priority_metric']]:.4f}")
+            tensorboard.write_scalars("Loss/val", val_loss, epoch + 1)
+            for metric_name, metric_value in val_metric.items():
+                tensorboard.write_scalar(f"Val/{metric_name}", metric_value, epoch + 1)
+            logger.info(f"Validation metric: {', '.join([f'{k}: {v:.4f}' for k, v in val_metric.items()])}")
 
             # Early stopping check
             if early_stopper:
