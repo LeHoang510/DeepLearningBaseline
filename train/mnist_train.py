@@ -90,6 +90,8 @@ def train(config_path: Path|str, device: str|torch.device):
         model.train()
         # Reset loss
         total_loss = 0.0
+        individual_losses = {}
+
         train_loader_tqdm = tqdm(
             train_loader,
             desc=f"Epoch {epoch + 1}/{total_epochs} - Training",
@@ -101,9 +103,7 @@ def train(config_path: Path|str, device: str|torch.device):
             try:
                 images = images.to(device)
                 targets = targets.to(device)
-                
-                # In this example, we assume the model returns predictions and a loss dictionary
-                # Modify this according to your model's forward method (do the same for the evaluate function)
+
                 predictions, loss_dict = model(images, targets)
                 losses = sum(loss for loss in loss_dict.values())
 
@@ -115,6 +115,13 @@ def train(config_path: Path|str, device: str|torch.device):
 
                 total_loss += losses.item()
 
+                # Initialize individual_losses if not done yet (first batch)
+                if not individual_losses:
+                    individual_losses = {k: 0.0 for k in loss_dict.keys()}
+                # Accumulate individual losses
+                for k, v in loss_dict.items():
+                    individual_losses[k] += v.item()
+
                 train_loader_tqdm.set_postfix({
                     "batch_loss": f"{losses.item():.4f}",
                     "avg_loss": f"{total_loss / (batch_idx + 1):.4f}",
@@ -125,7 +132,9 @@ def train(config_path: Path|str, device: str|torch.device):
         
         # End of epoch
         epoch_duration = time.time() - epoch_start_time
-        epoch_loss = total_loss / len(train_loader)
+        epoch_total_loss = total_loss / len(train_loader)
+        epoch_individual_losses = {key: individual_losses[key] / len(train_loader) for key in individual_losses}
+
         scheduler.step() if scheduler else None
         checkpoint = {
             "config": config,
@@ -138,11 +147,13 @@ def train(config_path: Path|str, device: str|torch.device):
         # Save checkpoint, write to TensorBoard
         logger.info(
             f"Epoch {epoch + 1} completed in {epoch_duration:.2f}s, "
-            f"Average Loss: {epoch_loss:.4f}, "
+            f"Average Loss: {epoch_total_loss:.4f}, "
             f"Learning rate: {optimizer.param_groups[0]['lr']:.6f}"
         )
-        tensorboard.write_scalar("Loss/train", epoch_loss, epoch + 1)
+        logger.info(f"Individual Losses: {', '.join([f'{k}: {v:.4f}' for k, v in epoch_individual_losses.items()])}")
+        tensorboard.write_scalar("Loss/train", epoch_total_loss, epoch + 1)
         tensorboard.write_scalar("Learning rate", optimizer.param_groups[0]['lr'], epoch + 1)
+        tensorboard.write_scalars("Loss/train_individual", epoch_individual_losses, epoch + 1)
 
         # Save checkpoint
         torch.save(checkpoint, output_dir / f"checkpoint_epoch_{epoch + 1}.pth")
@@ -171,7 +182,7 @@ def train(config_path: Path|str, device: str|torch.device):
                     torch.save(checkpoint, output_dir / "best_model.pth")
                     logger.info(f"New best model at epoch {epoch + 1} saved!")
                 if early_stopper.status():
-                    logger.info("Early stopping triggered, stopping training.")
+                    logger.info("Early stopping triggered, stopping training!")
                     break
         
         tensorboard.flush()
