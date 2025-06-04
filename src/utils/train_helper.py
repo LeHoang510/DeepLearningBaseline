@@ -12,6 +12,38 @@ from models.mnist.mnist_model import MnistModel
 from datasets.template_dataset import ExampleDataset
 from datasets.mnist_dataset import MnistDataset
 
+DATASETS = {
+    "ExampleDataset": ExampleDataset,
+    "MnistDataset": MnistDataset,
+    # "VOC": VOCDataset,
+    # other datasets can be added here
+}
+
+MODELS = {
+    "ExampleModel": ExampleModel,
+    "MnistModel": MnistModel, 
+    # other models can be added here
+}
+
+OPTIMIZERS = {
+    "SGD": optim.SGD,
+    "Adam": optim.Adam,
+    "AdamW": optim.AdamW,
+    "RMSprop": optim.RMSprop,
+    # others can be added here
+}
+
+SCHEDULERS = {
+    "StepLR": lr_scheduler.StepLR,
+    "LinearLR": lr_scheduler.LinearLR,
+    "MultiStepLR": lr_scheduler.MultiStepLR,
+    "ExponentialLR": lr_scheduler.ExponentialLR,
+    "CosineAnnealingLR": lr_scheduler.CosineAnnealingLR,
+    "ReduceLROnPlateau": lr_scheduler.ReduceLROnPlateau, # need to modify step in training loop
+    "OneCycleLR": lr_scheduler.OneCycleLR,
+    # others can be added here
+}
+
 def load_model(model_path: Path|str, device: torch.device):
     """
     Load a pre-trained model from the specified path.
@@ -62,20 +94,13 @@ def prepare_dataset(dataset_config: dict):
         dataset (torch.utils.data.Dataset): The instantiated dataset.
         dataloader (torch.utils.data.DataLoader): The dataloader for the dataset.
     """
-    config = dataset_config
-    datasets = {
-        "ExampleDataset": ExampleDataset,
-        "MnistDataset": MnistDataset,
-        # "VOC": VOCDataset,
-        # other datasets can be added here
-    }
-    if "type" not in config:
+    if "type" not in dataset_config:
         raise ValueError("Dataset type must be specified in the configuration.")
-    if config["type"] not in datasets:
-        raise ValueError(f"Unsupported dataset type: {config['type']}. Available options: {list(datasets.keys())}")
+    if dataset_config["type"] not in DATASETS:
+        raise ValueError(f"Unsupported dataset type: {dataset_config['type']}. Available options: {list(DATASETS.keys())}")
 
-    dataset = datasets[config["type"]](**config.get("dataset_params", {}))
-    dataloader = DataLoader(dataset, **config.get("dataloader_params", {}), collate_fn=dataset.collate_fn) if "dataloader_params" in config else None
+    dataset = DATASETS[dataset_config["type"]](**dataset_config.get("dataset_params", {}))
+    dataloader = DataLoader(dataset, **dataset_config.get("dataloader_params", {}), collate_fn=dataset.collate_fn)
 
     return dataset, dataloader
 
@@ -87,17 +112,12 @@ def get_model(model_config: dict):
     Returns:
         model (torch.nn.Module): The instantiated model.
     """
-    models = {
-        "ExampleModel": ExampleModel,
-        "MnistModel": MnistModel, 
-        # other models can be added here
-    }
     if "type" not in model_config:
         raise ValueError("Model type must be specified in the configuration.")
-    if model_config["type"] not in models:
-        raise ValueError(f"Unsupported model type: {model_config['type']}. Available options: {list(models.keys())}")
-    
-    return models[model_config["type"]](**model_config.get("params", {}))
+    if model_config["type"] not in MODELS:
+        raise ValueError(f"Unsupported model type: {model_config['type']}. Available options: {list(MODELS.keys())}")
+
+    return MODELS[model_config["type"]](**model_config.get("params", {}))
 
 def get_optimizer(model: nn.Module, optimizer_config: dict):
     """
@@ -108,19 +128,12 @@ def get_optimizer(model: nn.Module, optimizer_config: dict):
     Returns:
         optimizer (torch.optim.Optimizer): The configured optimizer.
     """
-    optimizers = {
-        "SGD": optim.SGD,
-        "Adam": optim.Adam,
-        "AdamW": optim.AdamW,
-        "RMSprop": optim.RMSprop,
-        # others can be added here
-    }
     if "type" not in optimizer_config:
         raise ValueError("Optimizer type must be specified in the configuration.")
-    if optimizer_config["type"] not in optimizers:
-        raise ValueError(f"Unsupported optimizer type: {optimizer_config['type']}. Available options: {list(optimizers.keys())}")
+    if optimizer_config["type"] not in OPTIMIZERS:
+        raise ValueError(f"Unsupported optimizer type: {optimizer_config['type']}. Available options: {list(OPTIMIZERS.keys())}")
 
-    return optimizers[optimizer_config["type"]](model.parameters(), **optimizer_config.get("params", {}))
+    return OPTIMIZERS[optimizer_config["type"]](model.parameters(), **optimizer_config.get("params", {}))
 
 def get_scheduler(optimizer: optim.Optimizer, scheduler_config: dict):
     """
@@ -131,19 +144,9 @@ def get_scheduler(optimizer: optim.Optimizer, scheduler_config: dict):
     Returns:
         scheduler (torch.optim.lr_scheduler._LRScheduler): The configured learning rate scheduler.
     """
-    schedulers = {
-        "StepLR": lr_scheduler.StepLR,
-        "LinearLR": lr_scheduler.LinearLR,
-        "MultiStepLR": lr_scheduler.MultiStepLR,
-        "ExponentialLR": lr_scheduler.ExponentialLR,
-        "CosineAnnealingLR": lr_scheduler.CosineAnnealingLR,
-        "ReduceLROnPlateau": lr_scheduler.ReduceLROnPlateau, # need to modify step in training loop
-        "OneCycleLR": lr_scheduler.OneCycleLR,
-        # others can be added here
-    }
     if "type" not in scheduler_config:
         raise ValueError("Scheduler type must be specified in the configuration.")
-    if scheduler_config["type"] not in schedulers:
-        raise ValueError(f"Unsupported scheduler type: {scheduler_config['type']}. Available options: {list(schedulers.keys())}")
+    if scheduler_config["type"] not in SCHEDULERS:
+        raise ValueError(f"Unsupported scheduler type: {scheduler_config['type']}. Available options: {list(SCHEDULERS.keys())}")
 
-    return schedulers[scheduler_config["type"]](optimizer, **scheduler_config.get("params", {}))
+    return SCHEDULERS[scheduler_config["type"]](optimizer, **scheduler_config.get("params", {}))

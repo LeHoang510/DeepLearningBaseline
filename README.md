@@ -2,7 +2,7 @@
 This is set up for deep learning baseline
 - TODO:
 + Write verify config
-+ write infrerence code
++ write inference code
 + write visualize code
 + write template
 + Write test allow to save predictions output
