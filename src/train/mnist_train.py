@@ -2,7 +2,6 @@ import os
 import time
 import shutil
 import traceback
-import sys
 from pathlib import Path
 
 import torch
@@ -196,4 +195,9 @@ if __name__ == "__main__":
     logger = Logger("train")
     device, is_cuda = check_hardware(verbose=False)
     config_path = Path("src/configs/mnist/mnist_train_config.yaml")
-    train(config_path, device=device)
+
+    try:
+        train(config_path, device=device)
+    except Exception as e:
+        logger.error(f"Error occurred during training: {e}")
+        logger.error(traceback.format_exc())

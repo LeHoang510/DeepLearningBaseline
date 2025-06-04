@@ -1,11 +1,8 @@
 import os
 import shutil
 import time
-import sys
+import traceback
 from pathlib import Path
-
-root_dir = Path(__file__).parent.parent
-sys.path.append(str(root_dir))
 
 import torch
 from core.logger import Logger
@@ -79,4 +76,9 @@ if __name__ == "__main__":
     logger = Logger("test")
     device, is_cuda = check_hardware(verbose=False)
     config_path = Path("src/configs/mnist/mnist_test_config.yaml")
-    test(config_path, device=device)
+
+    try:
+        test(config_path, device=device)
+    except Exception as e:
+        logger.error(f"An error occurred during testing: {e}")
+        logger.error(traceback.format_exc())
