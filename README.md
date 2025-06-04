@@ -2,8 +2,10 @@
 This is set up for deep learning baseline
 - TODO:
 + Write verify config
++ update README.md (setup)
 + Test pretrained models
 + Test resume training
++ Write test allow to save predictions output
 
 # Set up + Installation
 ## 1. Clone the repository

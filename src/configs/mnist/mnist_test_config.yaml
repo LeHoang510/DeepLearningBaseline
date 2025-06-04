@@ -18,4 +18,11 @@ model_config:
   type: MnistModel
   # params: # Custom and Optional
 
-test_config:
+evaluate_config:
+  metrics: 
+    - function: accuracy_mnist
+    - function: f1_score_mnist
+      params: # Custom and Optional
+        average: macro
+
+  main_metric: accuracy # Required

@@ -43,7 +43,7 @@ def train(config_path: Path|str, device: str|torch.device):
     os.makedirs(output_dir, exist_ok=True)
     logger.info(f"Output directory: {output_dir}")
     save_yaml(config, output_dir / config_path.name)
-    logger.info(f"Configuration saved to output directory.")
+    logger.info(f"Configuration saved to output directory")
 
     # Prepare training
     model, optimizer, scheduler, early_stopper, tensorboard = prepare_training(config, output_dir)
@@ -75,7 +75,7 @@ def train(config_path: Path|str, device: str|torch.device):
         val_dataset, val_loader = prepare_dataset(dataset_config["val"])
     else:
         val_dataset, val_loader = None, None
-        logger.warning("Validation dataset not provided, skipping validation.")
+        logger.warning("Validation dataset not provided, skipping validation")
 
     logger.info(f"Training dataset size: {len(train_dataset)}")
     if val_dataset:
@@ -86,7 +86,7 @@ def train(config_path: Path|str, device: str|torch.device):
     for epoch in range(start_epoch, total_epochs):
         epoch_start_time = time.time()
         logger.info(f"{'-' * 20} Epoch {epoch + 1}/{total_epochs} {'-' * 20}")
-        logger.info(f"[⚙️ TRAIN] Starting training...")
+        logger.info(f"[⚙️ TRAIN] Starting training")
 
         model.train()
         # Reset loss
@@ -161,7 +161,7 @@ def train(config_path: Path|str, device: str|torch.device):
         
         # Validation
         if val_loader:
-            logger.info(f"[🔍 VAL] Starting validation...")
+            logger.info(f"[🔍 VAL] Starting validation")
             validation_start_time = time.time()
 
             # val_metric_dict must be a dictionary with metric names as keys and the first metric as the main metric
@@ -181,18 +181,19 @@ def train(config_path: Path|str, device: str|torch.device):
                 if early_stopper(val_metric[evaluate_config["main_metric"]]):
                     saved_path = output_dir / "best_model.pth"
                     torch.save(checkpoint, saved_path)
-                    logger.info(f"💾 New best model at epoch {epoch + 1} saved at {saved_path}!")
+                    logger.info(f"💾 New best model at epoch {epoch + 1} saved at {saved_path}")
                 if early_stopper.status():
-                    logger.info("Early stopping triggered, stopping training!")
+                    logger.info("🛑 Early stopping triggered, stopping training")
                     break
         
         tensorboard.flush()
         
-    logger.info("Training completed successfully!")
+    logger.info(f"{'=' * 20} Training completed successfully {'=' * 20}")
+    logger.info(f"Total training time: {time.time() - start_epoch:.2f}s")
     tensorboard.close()
 
 if __name__ == "__main__":
     logger = Logger("train")
     device, is_cuda = check_hardware(verbose=False)
-    config_path = Path("src/configs/mnist_train_config.yaml")
+    config_path = Path("src/configs/mnist/mnist_train_config.yaml")
     train(config_path, device=device)
