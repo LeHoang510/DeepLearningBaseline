@@ -1,6 +1,7 @@
 import os
 import time
 import shutil
+import traceback
 import sys
 from pathlib import Path
 
@@ -25,7 +26,7 @@ def train(config_path: Path|str, device: str|torch.device):
         device (str|torch.device): Device to run the training on (e.g., 'cuda' or 'cpu').
     """
     logger = Logger()
-    logger.info("Training started...")
+    logger.info(f"{'=' * 20} Setting up training {'=' * 20}")
     logger.info(f"Loading configuration from {config_path}")
 
     # Load configuration
@@ -45,7 +46,7 @@ def train(config_path: Path|str, device: str|torch.device):
     os.makedirs(output_dir, exist_ok=True)
     logger.info(f"Output directory: {output_dir}")
     save_yaml(config, output_dir / config_path.name)
-    logger.info("Configuration saved to output directory.")
+    logger.info(f"Configuration saved to output directory.")
 
     # Prepare training
     model, optimizer, scheduler, early_stopper, tensorboard = prepare_training(config, output_dir)
@@ -68,10 +69,10 @@ def train(config_path: Path|str, device: str|torch.device):
         logger.info(f"Loading pretrained model from {pretrained_path}")
         checkpoint = torch.load(pretrained_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
-        logger.info("Loaded pretrained model weights")
+        logger.info(f"Loaded pretrained model weights")
 
     # Set up datasets and dataloaders
-    logger.info("Preparing datasets")
+    logger.info(f"Preparing datasets")
     train_dataset, train_loader = prepare_dataset(dataset_config["train"])
     if "val" in dataset_config:
         val_dataset, val_loader = prepare_dataset(dataset_config["val"])
@@ -84,9 +85,12 @@ def train(config_path: Path|str, device: str|torch.device):
         logger.info(f"Validation dataset size: {len(val_dataset)}")
 
     # Training loop
+    logger.info(f"{'=' * 20} Training loop {'=' * 20}")
     for epoch in range(start_epoch, total_epochs):
         epoch_start_time = time.time()
-        logger.info(f"Epoch {epoch + 1}/{total_epochs}")
+        logger.info(f"{'-' * 20} Epoch {epoch + 1}/{total_epochs} {'-' * 20}")
+        logger.info(f"[⚙️ TRAIN] Starting training...")
+
         model.train()
         # Reset loss
         all_losses = {}
@@ -113,13 +117,10 @@ def train(config_path: Path|str, device: str|torch.device):
                 optimizer.step()
 
                 # Initialize all_losses if not done yet (first batch)
-                if not all_losses:
-                    all_losses = {k: 0.0 for k in loss_dict.keys()}
-                    all_losses["total_loss"] = 0.0
+                all_losses["total_loss"] = all_losses.get("total_loss", 0.0) + losses.item()
                 # Accumulate all_losses
                 for k, v in loss_dict.items():
-                    all_losses[k] += v.item()
-                all_losses["total_loss"] += losses.item()
+                    all_losses[k] = all_losses.get(k, 0.0) + v.item()
 
                 train_loader_tqdm.set_postfix({
                     "batch_loss": f"{losses.item():.4f}",
@@ -127,6 +128,7 @@ def train(config_path: Path|str, device: str|torch.device):
                 })
             except Exception as e:
                 logger.error(f"Error during training step {batch_idx}: {e}")
+                logger.error(traceback.format_exc())
                 continue
         
         # End of epoch
@@ -143,12 +145,10 @@ def train(config_path: Path|str, device: str|torch.device):
             "early_stopper_state_dict": early_stopper.state_dict() if early_stopper else None,
         }
         # Save checkpoint, write to TensorBoard
-        logger.info(
-            f"Epoch {epoch + 1} completed in {epoch_duration:.2f}s, "
-            f"Average Loss: {epoch_all_losses['total_loss']:.4f}, "
-            f"Learning rate: {optimizer.param_groups[0]['lr']:.6f}"
-        )
-        logger.info(f"Individual Losses: {', '.join([f'{k}: {v:.4f}' for k, v in epoch_all_losses.items()])}")
+        logger.info(f"Epoch {epoch + 1} completed in {epoch_duration:.2f}s")
+        logger.info(f"Average loss: {epoch_all_losses['total_loss']:.4f}")
+        logger.info(f"Learning rate: {optimizer.param_groups[0]['lr']:.6f}")
+        logger.info(f"Losses: {', '.join([f'{k}: {v:.4f}' for k, v in epoch_all_losses.items()])}")
         tensorboard.write_scalars("Loss/train", epoch_all_losses, epoch + 1)
         tensorboard.write_scalar("Learning rate", optimizer.param_groups[0]['lr'], epoch + 1)
 
@@ -164,22 +164,27 @@ def train(config_path: Path|str, device: str|torch.device):
         
         # Validation
         if val_loader:
-            logger.info("Starting validation")
-            
+            logger.info(f"[🔍 VAL] Starting validation...")
+            validation_start_time = time.time()
+
             # val_metric_dict must be a dictionary with metric names as keys and the first metric as the main metric
             val_loss, val_metric = evaluate(model, val_loader, device, metrics=evaluate_config["metrics"])
+            validation_duration = time.time() - validation_start_time
 
-            logger.info(f"Validation metric: {val_metric[evaluate_config['priority_metric']]:.4f}")
+            logger.info(f"Validation completed in {validation_duration:.2f}s")
+            logger.info(f"Main metric ({evaluate_config['main_metric']}): {val_metric[evaluate_config['main_metric']]:.4f}")
+            logger.info(f"Average loss: {val_loss['total_loss']:.4f}")
+            logger.info(f"Metrics: {', '.join([f'{k}: {v:.4f}' for k, v in val_metric.items()])}")
+            logger.info(f"Losses: {', '.join([f'{k}: {v:.4f}' for k, v in val_loss.items()])}")
             tensorboard.write_scalars("Loss/val", val_loss, epoch + 1)
-            for metric_name, metric_value in val_metric.items():
-                tensorboard.write_scalar(f"Val/{metric_name}", metric_value, epoch + 1)
-            logger.info(f"Validation metric: {', '.join([f'{k}: {v:.4f}' for k, v in val_metric.items()])}")
+            tensorboard.write_scalars("Metrics/val", val_metric, epoch + 1)
 
             # Early stopping check
             if early_stopper:
-                if early_stopper(val_metric):
-                    torch.save(checkpoint, output_dir / "best_model.pth")
-                    logger.info(f"New best model at epoch {epoch + 1} saved!")
+                if early_stopper(val_metric[evaluate_config["main_metric"]]):
+                    saved_path = output_dir / "best_model.pth"
+                    torch.save(checkpoint, saved_path)
+                    logger.info(f"💾 New best model at epoch {epoch + 1} saved at {saved_path}!")
                 if early_stopper.status():
                     logger.info("Early stopping triggered, stopping training!")
                     break

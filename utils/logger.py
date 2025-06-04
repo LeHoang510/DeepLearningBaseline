@@ -1,4 +1,5 @@
 import os
+import os.path as osp
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -33,16 +34,13 @@ class Logger:
         return cls._instance
 
     def _init_logger(self, input_name: Path|str = None):
-        timestamp = datetime.now().strftime("%d.%m.%Y_%H-%M-%S")
+        timestamp = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
         base_folder = "logs"
 
-        if input_name:
-            self.log_dir = os.path.join(base_folder, input_name, timestamp)
-        else:
-            self.log_dir = os.path.join(base_folder, timestamp)
+        self.log_dir = Path(base_folder) / (input_name or "")
 
         os.makedirs(self.log_dir, exist_ok=True)
-        self.log_file = os.path.join(self.log_dir, "log.txt")
+        self.log_file = osp.join(self.log_dir, f"{timestamp}.log")
 
 
         self.logger = logging.getLogger("SystemLogger")
