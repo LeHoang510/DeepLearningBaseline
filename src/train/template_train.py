@@ -7,9 +7,9 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 
-from utils.logger import Logger
-from utils.check_hardware import check_hardware
-from utils.utils import load_yaml
+from core.logger import Logger
+from core.check_hardware import check_hardware
+from core.utils import load_yaml
 from utils.train_helper import prepare_training, prepare_dataset
 from utils.evaluate_helper import evaluate
 

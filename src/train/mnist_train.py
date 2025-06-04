@@ -48,6 +48,7 @@ def train(config_path: Path|str, device: str|torch.device):
     model, optimizer, scheduler, early_stopper, tensorboard = prepare_training(config, output_dir)
     model.to(device)
     
+    start_time = time.time()
     start_epoch = 0
     total_epochs = train_config["num_epochs"]
 
@@ -188,7 +189,7 @@ def train(config_path: Path|str, device: str|torch.device):
         tensorboard.flush()
         
     logger.info(f"{'=' * 20} Training completed successfully {'=' * 20}")
-    logger.info(f"Total training time: {time.time() - start_epoch:.2f}s")
+    logger.info(f"Total training time: {time.time() - start_time:.2f}s")
     tensorboard.close()
 
 if __name__ == "__main__":
