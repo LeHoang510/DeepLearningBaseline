@@ -3,7 +3,6 @@ This is set up for deep learning baseline
 - TODO:
 + split validate results in tensorboard
 + Write verify config
-+ update README.md (setup)
 + write infrerence code
 + write visualize code
 + write template
@@ -101,8 +100,15 @@ cd DeepLearningBaseline
     # Install all dependencies in pyproject.toml
     poetry install
     ```
+## 2.3. Turn project into a package
+- Turn the project into a package by running the following command:
 
-## 2.3. Check hardware compatibility
+    ```bash
+    # Turn the project into a package
+    pip install -e .
+    ```
+
+## 2.4. Check hardware compatibility
 - You can check if your hardware is compatible by running the following command (only with torch installed):
 
     ```bash
