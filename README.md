@@ -3,6 +3,9 @@ This is set up for deep learning baseline
 - TODO:
 + Write verify config
 + update README.md (setup)
++ write infrerence code
++ write visualize code
++ write template
 + Write test allow to save predictions output
 
 # Set up + Installation
