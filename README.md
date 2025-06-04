@@ -1,6 +1,7 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
 - TODO:
++ split validate results in tensorboard
 + Write verify config
 + update README.md (setup)
 + write infrerence code
