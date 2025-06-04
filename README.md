@@ -1,11 +1,13 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
 - TODO:
-+ Write verify config
++ Write test verify config
++ Update README.md yaml config
 + write inference code
 + write visualize code
 + write template
 + Write test allow to save predictions output
++ Write readme to explain how to write your own scripts
 
 # Set up + Installation
 ## 1. Clone the repository
@@ -30,6 +32,8 @@ cd DeepLearningBaseline
     ```
 
 ### 2.2. Install the required packages
+
+Use one of the following methods to install the required packages. You can use `uv` or `poetry` to manage your dependencies. Both methods will create a `pyproject.toml` file in the root directory of the project.
 
 #### 2.2.1. Install the required packages using uv
 
@@ -114,7 +118,10 @@ cd DeepLearningBaseline
     python utils/check_hardware.py
     ```
 
-# Usage
+# Quick start
+This section will guide you through the quick start of the project. The project is designed to be flexible and easy to use. You can run the training, testing, and inference scripts with minimal configuration. 
+
+In order to write your own training, testing, and inference scripts, you can refer to the existing scripts or the template scripts. You can also refer to the [GUIDE.md](docs/guide.md)  file for more details on how to write your own scripts.
 ## 1. Run the training script
 - You can run the training script by running the command below. Modify verbose=False to verbose=True to see more details of hardware information during training process. The output in the terminal will show the training progress and the logs will be saved in the `logs/train/<timestamp>` directory and the model checkpoints as well as the config file and tensorboard logs will be saved in the `outputs/train/<experiment-name>` directory.:
 
@@ -161,5 +168,6 @@ cd DeepLearningBaseline
     tensorboard --logdir=outputs/train/mnist_experiment
     ```
 
-# Quick start
-#### TODO
+
+# Contributing
+Hi, my name is Le Hoang, I am the author of this project
