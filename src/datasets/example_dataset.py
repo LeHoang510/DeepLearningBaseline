@@ -3,7 +3,7 @@ import torchvision.transforms.functional as F
 from torch.utils.data import Dataset
 from PIL import Image
 
-from utils.utils import load_json
+from core.utils import load_json
 
 class ExampleTransform:
     """

@@ -5,10 +5,10 @@ import torch.nn as nn
 from torch import optim
 from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
-from utils.utils import EarlyStopping, TensorBoard
+from core.utils import EarlyStopping, TensorBoard
 
 from models.example_model import ExampleModel
-from models.MNIST.mnist_model import MnistModel
+from models.mnist.mnist_model import MnistModel
 from datasets.example_dataset import ExampleDataset
 from datasets.mnist_dataset import MnistDataset
 

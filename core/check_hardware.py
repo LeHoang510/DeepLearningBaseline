@@ -4,7 +4,7 @@ import shutil
 import subprocess
 
 import torch
-from logger import Logger
+from core.logger import Logger
 
 def check_hardware(verbose=True):
     """

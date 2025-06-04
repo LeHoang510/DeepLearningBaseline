@@ -9,9 +9,9 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 
-from utils.logger import Logger
-from utils.check_hardware import check_hardware
-from utils.utils import load_yaml, save_yaml
+from core.logger import Logger
+from core.check_hardware import check_hardware
+from core.utils import load_yaml, save_yaml
 from utils.train_helper import prepare_training, prepare_dataset
 from utils.evaluate_helper import evaluate
 
@@ -194,5 +194,5 @@ def train(config_path: Path|str, device: str|torch.device):
 if __name__ == "__main__":
     logger = Logger("train")
     device, is_cuda = check_hardware(verbose=False)
-    config_path = Path("configs/mnist_train_config.yaml")
+    config_path = Path("src/configs/mnist_train_config.yaml")
     train(config_path, device=device)
