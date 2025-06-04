@@ -1,11 +1,7 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
 - TODO:
-+ test train loss output (logger, tensorboard)
-+ test validation loss, metrics 
-+ rewrite evaluate function and yaml config
--> metrics select base on input (metric -> function -> call)
-+ rewrite validation step 
++ Write verify config
 + Test pretrained models
 + Test resume training
 

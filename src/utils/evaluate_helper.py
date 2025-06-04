@@ -1,13 +1,11 @@
 import torch
 from tqdm import tqdm
 
-from evaluate.example_evaluate import calculate_map
 from evaluate.mnist_evaluate import mnist_accuracy, mnist_f1_score
 
 EVALUATE_FUNCTIONS = {
     "accuracy_mnist": mnist_accuracy,
     "f1_score_mnist": mnist_f1_score,
-    "map": calculate_map,
 }
 
 @torch.no_grad()

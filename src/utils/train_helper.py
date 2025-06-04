@@ -9,7 +9,7 @@ from core.utils import EarlyStopping, TensorBoard
 
 from models.template.example_model import ExampleModel
 from models.mnist.mnist_model import MnistModel
-from datasets.example_dataset import ExampleDataset
+from datasets.template_dataset import ExampleDataset
 from datasets.mnist_dataset import MnistDataset
 
 def load_model(model_path: Path|str, device: torch.device):
