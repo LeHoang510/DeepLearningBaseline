@@ -1,15 +1,16 @@
 path_config:  
-  output_dir: outputs/train/mnist_experiment # Required or will be saved in the default
-  checkpoint_path: null   # Optional
-  pretrained_path: null   # Optional
+  output_dir:  # Required or will be saved in the default
+  checkpoint_path: output_dir   
+  pretrained_path: output_dir
 
 dataset_config: 
   train:
     type: MnistDataset  # Required
     dataset_params:  # Custom and Optional
-      root: "./data"
+      root: false
       split: true
       download: true
+      accuracy: 0.95
     dataloader_params: # Custom and Optional
       batch_size: 64
       shuffle: true

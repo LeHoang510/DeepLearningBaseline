@@ -34,6 +34,7 @@ class Logger:
         return cls._instance
 
     def _init_logger(self, input_name: Path|str = None):
+        self._has_error = False
         timestamp = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
         base_folder = "logs"
 
@@ -81,6 +82,7 @@ class Logger:
         self.logger.warning(msg, stacklevel=2)
 
     def error(self, msg: str):
+        self._has_error = True
         self.logger.error(msg, stacklevel=2)
 
     def critical(self, msg: str):
@@ -88,3 +90,6 @@ class Logger:
 
     def get_log_path(self) -> Path:
         return self.log_file
+
+    def has_errors(self) -> bool:
+        return self._has_error

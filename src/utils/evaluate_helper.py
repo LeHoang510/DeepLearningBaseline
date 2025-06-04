@@ -4,8 +4,8 @@ from tqdm import tqdm
 from evaluate.mnist_evaluate import mnist_accuracy, mnist_f1_score
 
 EVALUATE_FUNCTIONS = {
-    "accuracy_mnist": mnist_accuracy,
-    "f1_score_mnist": mnist_f1_score,
+    "mnist_accuracy": mnist_accuracy,
+    "mnist_f1_score": mnist_f1_score,
 }
 
 @torch.no_grad()

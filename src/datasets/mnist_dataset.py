@@ -34,7 +34,11 @@ class MnistDataset(Dataset):
     This class extends the PyTorch Dataset class and provides methods to load data,
     apply transformations, and retrieve samples.
     """
-    def __init__(self, root="./data", split=True, download=True, transform=MnistTransform()):
+    def __init__(self, 
+                 root: str = "./data", 
+                 split: bool = True, 
+                 download: bool = True, 
+                 transform: MnistTransform = MnistTransform()):
         self.root = root
         self.split = split
         self.download = download
