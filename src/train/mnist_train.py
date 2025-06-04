@@ -174,7 +174,8 @@ def train(config_path: Path|str, device: str|torch.device):
             logger.info(f"Metrics: {', '.join([f'{k}: {v:.4f}' for k, v in val_metric.items()])}")
             logger.info(f"Losses: {', '.join([f'{k}: {v:.4f}' for k, v in val_loss.items()])}")
             tensorboard.write_scalars("Loss/val", val_loss, epoch + 1)
-            tensorboard.write_scalars("Metrics/val", val_metric, epoch + 1)
+            for metric_name, metric_value in val_metric.items():
+                tensorboard.write_scalar(f"Metrics/{metric_name}", metric_value, epoch + 1)
 
             # Early stopping check
             if early_stopper:
