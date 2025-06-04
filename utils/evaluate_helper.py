@@ -1,8 +1,6 @@
 import torch
 from tqdm import tqdm
 
-from models.example_model import ExampleModel
-from models.mnist_model import MnistModel
 from evaluate.example_evaluate import calculate_map
 from evaluate.mnist_evaluate import mnist_accuracy, mnist_f1_score
 
@@ -14,6 +12,21 @@ EVALUATE_FUNCTIONS = {
 
 @torch.no_grad()
 def evaluate(model, dataloader, device, metrics={}):
+    """
+    Evaluate the model on the given dataloader using specified metrics.
+    Args:
+        model (torch.nn.Module): The model to evaluate.
+        dataloader (torch.utils.data.DataLoader): DataLoader for the evaluation dataset.
+        device (str|torch.device): Device to run the evaluation on (e.g., 'cuda' or 'cpu').
+        metrics (list): List of metrics to calculate. Each metric should be a dict with 'function' and optional 'params'.
+    Returns:
+        tuple: Average loss (dict) and metric results (dict).
+    """
+    for metric in metrics:
+        metric_fn = metric.get("function")
+        if metric_fn not in EVALUATE_FUNCTIONS:
+            raise ValueError(f"Unsupported metric function: {metric_fn}. Available options: {list(EVALUATE_FUNCTIONS.keys())}")
+
     model.eval()
     all_preds = []
     all_targets = []
@@ -39,11 +52,9 @@ def evaluate(model, dataloader, device, metrics={}):
 
     metric_results = {}
     # Calculate metrics
+    metric_results = {}
     for metric in metrics:
         metric_fn = metric.get("function")
-        if metric_fn in EVALUATE_FUNCTIONS:
-            metric_results.update(EVALUATE_FUNCTIONS[metric_fn](all_preds, all_targets, **metric.get("params", {})))
-        else:
-            raise ValueError(f"Unsupported metric function: {metric_fn}. Available options: {list(EVALUATE_FUNCTIONS.keys())}")
+        metric_results.update(EVALUATE_FUNCTIONS[metric_fn](all_preds, all_targets, **metric.get("params", {})))
 
     return avg_all_losses, metric_results
