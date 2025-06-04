@@ -7,7 +7,6 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-
 def set_seed(seed: int = 24):
 	random.seed(seed)
 	np.random.seed(seed)

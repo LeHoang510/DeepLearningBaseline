@@ -4,11 +4,7 @@ import shutil
 import subprocess
 
 import torch
-
-try:
-    from utils.logger import Logger
-except ImportError:
-    from logger import Logger
+from logger import Logger
 
 def check_hardware(verbose=True):
     """

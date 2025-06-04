@@ -3,9 +3,6 @@ import time
 import sys
 from pathlib import Path
 
-root_dir = Path(__file__).parent.parent
-sys.path.append(str(root_dir))
-
 import torch
 import torch.nn as nn
 from tqdm import tqdm
