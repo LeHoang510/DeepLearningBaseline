@@ -1,7 +1,6 @@
 # DeepLearningBaseline
 This is set up for deep learning baseline
 - TODO:
-+ Write test verify config
 + Update README.md yaml config
 + write inference code
 + write visualize code
