@@ -10,7 +10,7 @@ from utils.train_helper import DATASETS, MODELS, OPTIMIZERS, SCHEDULERS
 from utils.evaluate_helper import EVALUATE_FUNCTIONS
 
 
-def train_config_validator(config_path: str|Path) -> None:
+def train_config_validator(config_path: str|Path):
     """
     Validate the training configuration file.
     
@@ -114,6 +114,83 @@ def train_config_validator(config_path: str|Path) -> None:
                                  f"Available options: {list(EVALUATE_FUNCTIONS.keys())}")
         if "main_metric" not in evaluate_config:
             logger.error("[evaluate_config.main_metric] must exist")  
+    
+    # Check if there are any errors
+    if logger.has_errors():
+        raise ValueError("Configuration validation failed. Please check the logs for details.")
+
+def test_config_validator(config_path: str|Path):
+    """
+    Validate the testing configuration file.
+    Args:
+        config_path (str | Path): Path to the YAML configuration file.
+    Raises:
+        ValueError: If any required configuration parameter is missing or invalid.
+    Returns:
+        None: If the configuration is valid.
+    .. warning::
+       This function only checks for the existence of the necessary parameters, 
+       not the data type or value correctness. 
+       And it also does not give warnings for missing optional parameters.
+    
+    """
+    logger = Logger()
+    config = load_yaml(config_path)
+
+    path_config = config.get("path_config", {})
+    dataset_config = config.get("dataset_config", {})
+    evaluate_config = config.get("evaluate_config", {})
+    model_config = config.get("model_config", {})
+
+    # Validate path_config
+    output_dir = path_config.get("output_dir", None)
+    checkpoint_path = path_config.get("checkpoint_path", None)
+    if not output_dir:
+        logger.error("[path_config.output_dir] is required")
+    if not checkpoint_path:
+        logger.error("[path_config.checkpoint_path] is required")
+    elif not Path(checkpoint_path).exists():
+        logger.error(f"[path_config.checkpoint_path] does not exist: {checkpoint_path}")
+
+    # Validate dataset_config
+    if "test" not in dataset_config:
+        logger.error("[dataset_config.test] is required")
+    else:
+        test_dataset_config = dataset_config["test"]
+        test_dataset_config_errors = _validate_dataset_config(test_dataset_config)
+        if test_dataset_config_errors:
+            for key, error in test_dataset_config_errors.items():
+                logger.error(f"[dataset_config.test.{key}] {error}")
+
+    # Validate model_config
+    if "type" not in model_config:
+        logger.error("[model_config.type] is required")
+    elif model_config["type"] not in MODELS:
+        logger.error(f"[model_config.type] '{model_config['type']}' is not supported. "
+                     f"Available options: {list(MODELS.keys())}")
+    else:
+        model_class = MODELS[model_config["type"]]
+        params = model_config.get("params", {})
+        params_errors = _validate_params(model_class, params)
+        if params_errors:
+            logger.error(f"[model_config.params] {model_config['type']} parameters error\n"
+                         f"Required params: {params_errors.get('required_params', [])}\n"
+                         f"Optional params: {params_errors.get('optional_params', [])}\n"
+                         f"Error: {params_errors.get('error', '')}")
+    
+    # Validate evaluate_config
+    if evaluate_config:
+        if "metrics" not in evaluate_config:
+            logger.error("[evaluate_config.metrics] is required")
+        else:
+            for metric in evaluate_config["metrics"]:
+                if "function" not in metric:
+                    logger.error("[evaluate_config.metrics.function] is required")
+                elif metric["function"] not in EVALUATE_FUNCTIONS:
+                    logger.error(f"[evaluate_config.metrics.function] '{metric['function']}' is not supported. "
+                                 f"Available options: {list(EVALUATE_FUNCTIONS.keys())}")
+        if "main_metric" not in evaluate_config:
+            logger.error("[evaluate_config.main_metric] is required")
     
     # Check if there are any errors
     if logger.has_errors():
