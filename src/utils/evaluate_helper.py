@@ -32,9 +32,9 @@ def evaluate(model, dataloader, device, metrics={}):
     metric_results = {}
 
     with torch.no_grad():
-        for images, targets in tqdm(dataloader, desc="Evaluating"):
-            images = images.to(device)
-            targets = targets.to(device)
+        for sample in tqdm(dataloader, desc="Evaluating"):
+            images = sample["images"].to(device)
+            targets = sample["targets"].to(device)
 
             predictions, loss_dict = model(images, targets)
             losses = sum(loss for loss in loss_dict.values())

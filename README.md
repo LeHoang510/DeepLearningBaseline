@@ -2,7 +2,6 @@
 
 This is set up for deep learning baseline TODO:
 
-- refactor to return sample in dataset
 - Update README.md GUIDE
 - write template
 - Write readme to explain how to write your own scripts
