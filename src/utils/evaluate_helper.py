@@ -29,12 +29,13 @@ def evaluate(model, dataloader, device, metrics={}):
     all_preds = []
     all_targets = []
     all_losses = {}
+    metric_results = {}
 
     with torch.no_grad():
         for images, targets in tqdm(dataloader, desc="Evaluating"):
             images = images.to(device)
             targets = targets.to(device)
-            
+
             predictions, loss_dict = model(images, targets)
             losses = sum(loss for loss in loss_dict.values())
 
@@ -48,9 +49,7 @@ def evaluate(model, dataloader, device, metrics={}):
     # Calculate average loss and metric
     avg_all_losses = {k: v / len(dataloader) for k, v in all_losses.items()}
 
-    metric_results = {}
     # Calculate metrics
-    metric_results = {}
     for metric in metrics:
         metric_fn = metric.get("function")
         metric_results.update(EVALUATE_FUNCTIONS[metric_fn](all_preds, all_targets, **metric.get("params", {})))

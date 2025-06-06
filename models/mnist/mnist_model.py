@@ -33,8 +33,8 @@ class MnistModel(nn.Module):
             loss_fn = nn.NLLLoss()
             loss = loss_fn(x, target)
             return x, {'loss': loss}
-        
-        return x
+
+        return x, {}
 
     def _init_weights(self):
         """Initialize weights of the model."""

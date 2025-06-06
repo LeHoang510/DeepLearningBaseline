@@ -10,7 +10,6 @@ This is set up for deep learning baseline TODO:
 - Write readme to explain how to write your own scripts
 - add folder structure
 - refactor to return sample in dataset
-- rewrite clean.py
 
 ## Set up + Installation
 

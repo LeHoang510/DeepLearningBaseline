@@ -10,7 +10,7 @@ dataset_config:
       split: false
       download: true
     dataloader_params:
-      batch_size: 2
+      batch_size: 64
       shuffle: false
       num_workers: 4
 
@@ -20,7 +20,13 @@ model_config:
 
 inference_config:
   mode: "all"
+  display: true
   save: false
-  params:
-    save: false
-  #FIXME: Add more parameters as needed
+  log: true
+
+evaluate_config:
+  metrics:
+    - function: mnist_accuracy
+    - function: mnist_f1_score
+      params: # Custom and Optional
+        average: macro

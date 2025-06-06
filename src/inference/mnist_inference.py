@@ -6,87 +6,117 @@ from pathlib import Path
 
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader
 
 from core.logger import Logger
 from core.check_hardware import check_hardware
 from core.utils import load_yaml, save_yaml
 from utils.train_helper import get_model, prepare_dataset
-from utils.visualize_helper import plot_image, denormalize
+from utils.visualize_helper import plot_gray_image, denormalize
+from utils.evaluate_helper import EVALUATE_FUNCTIONS
 
 @torch.no_grad()
-def inference_all(model, dataloader, output_dir, device, save: bool=False):
+def inference_all(model: nn.Module,
+                  dataloader: DataLoader,
+                  device: str|torch.device,
+                  config: dict):
     """
     Function to handle inference for all data in the dataset.
     This function should iterate through the dataloader and perform inference on each batch.
     """
     logger = Logger()
 
+    path_config = config.get("path_config")
+    output_dir = Path(path_config.get("output_dir", "outputs/inference/experiment"))
+
+    inference_config = config.get("inference_config", {})
+    display = inference_config.get("display", False)
+    save = inference_config.get("save", False)
+    log = inference_config.get("log", True)
+
+    evaluate_config = config.get("evaluate_config", {})
+    metrics = evaluate_config.get("metrics", [])
+
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+    logger.info(f"Output directory: {output_dir}")
     if save:
-        image_dir = Path(output_dir) / "predictions"
+        image_dir = output_dir/"predictions"
         os.makedirs(image_dir, exist_ok=True)
         logger.info(f"Saving predictions to {image_dir}")
 
     model.eval()
-    
-    correct = 0
-    total = 0
-    
+    all_preds = []
+    all_targets = []
+    all_losses = {}
+    metric_results = {}
+
     with torch.no_grad():
         for images, targets in dataloader:
             images = images.to(device)
             targets = targets.to(device)
 
-            predictions, _ = model(images, targets)
-            probs = torch.exp(predictions)  
+            predictions, loss_dict = model(images, targets)
+            losses = sum(loss for loss in loss_dict.values())
+
+            all_preds.extend(predictions)
+            all_targets.extend(targets)
+
+            all_losses["total_loss"] = all_losses.get("total_loss", 0.0) + losses.item()
+            for k, v in loss_dict.items():
+                all_losses[k] = all_losses.get(k, 0.0) + v.item()
+
+            probs = torch.exp(predictions)
             max_probs, predicted_classes = torch.max(probs, dim=1)
 
-            correct += (predicted_classes == targets).sum().item()
-            total += targets.size(0)
+            # FIXME to add path or id
+            if log or display or save:
+                for i, (image, target) in enumerate(zip(images, targets)):
+                    label = target.cpu().item()
+                    pred = f"{predicted_classes[i].cpu().item()}_{max_probs[i].cpu().item():.2f}"
 
-            # Fix to add path or id
-            for i, image in enumerate(images):
-                label = targets[i].cpu().item()
-                pred = f"{predicted_classes[i].cpu().item()}_{max_probs[i].cpu().item()}"
-                logger.info(f"[Processing image] Label: {label}, Predicted: {pred}")
-                if save:
-                    image = denormalize(image, mean=(0.1307,), std=(0.3081,)).cpu()
-                    save_path = image_dir / f"image_{i}_pred_{pred}.png"
-                    # image = image.cpu().numpy().transpose(1, 2, 0)  # Convert to HWC format
-                    plot_image(image=image, 
-                                label=label,
-                                pred=pred,
-                                save_path=save_path)
-    
-    logger.info(f"accuracy: {correct / total:.4f} ({correct}/{total})")
+                    if log:
+                        logger.info(f"[Processing image] Label: {label}, Predicted: {pred}")
 
-def inference_single():
+                    if display or save:
+                        image = denormalize(image, mean=(0.1307,), std=(0.3081,)).cpu()
+                        save_path = image_dir / f"image_{i}_pred_{pred}.png" if save else None
+                        plot_gray_image(image=image,
+                                        label=label,
+                                        pred=pred,
+                                        display=display,
+                                        save_path=save_path)
+
+    avg_all_losses = {k: v / len(dataloader) for k, v in all_losses.items()}
+
+    if metrics:
+        # Calculate metrics
+        for metric in metrics:
+            metric_fn = metric.get("function")
+            metric_results.update(EVALUATE_FUNCTIONS[metric_fn](all_preds, all_targets, **metric.get("params", {})))
+        logger.info(f"Metrics calculated: {', '.join([f'{k}: {v:.4f}' for k, v in metric_results.items()])}")
+        logger.info(f"Losses: {', '.join([f'{k}: {v:.4f}' for k, v in avg_all_losses.items()])}")
+
+        results = {
+            "Losses": avg_all_losses,
+            "Metrics": metric_results,
+        }
+        save_yaml(results, output_dir / "inference_results.yaml")
+
+def inference_single(model: nn.Module,
+                     dataset: torch.utils.data.Dataset,
+                     output_dir: str|Path,
+                     device: str|torch.device,
+                     config: dict):
+    """
+    Function to handle inference for a single data point.
+    This function should take a single image and perform inference on it.
+    """
     pass
 
 def inference_random():
     pass
-
-def inference_function(model: nn.Module, data: tuple, output_dir: str|Path, device: str|torch.device, config: dict):
-    """
-    Function to handle inference based on the mode and parameters provided.
-    Args:
-        mode (str): The mode of inference ('all' or 'single').
-        params (dict): Parameters for the inference function.
-    Returns:
-        None
-    """
-    dataset, dataloader = data
-    mode = config.get("mode", "all")
-    save = config.get("save", False)
-    params = config.get("params", {})
-    #TODO: Add more parameters as needed
-    
-    if mode == "all":
-        inference_all(model, dataloader, output_dir, device, **params)
-    elif mode == "single":
-        inference_single(model, dataset, output_dir, device, **params)
-    elif mode == "random":
-        inference_random(model, dataset, output_dir, device, **params)
-
 
 def inference(config_path: str|Path, device: str|torch.device):
     """
@@ -107,13 +137,6 @@ def inference(config_path: str|Path, device: str|torch.device):
     inference_config = config.get("inference_config", {})
 
     model_checkpoint = Path(path_config["checkpoint_path"]) if path_config.get("checkpoint_path") else None
-    output_dir = Path(path_config.get("output_dir", "outputs/inference/experiment"))
-    if output_dir.exists():
-        shutil.rmtree(output_dir)   
-    os.makedirs(output_dir, exist_ok=True)
-    logger.info(f"Output directory: {output_dir}")
-    save_yaml(config, output_dir / config_path.name)
-    logger.info(f"Configuration saved to output directory")
 
     logger.info(f"Loading model from {model_checkpoint}")
     model = get_model(model_config)
@@ -125,15 +148,18 @@ def inference(config_path: str|Path, device: str|torch.device):
     logger.info("Preparing dataset")
     inference_dataset, inference_loader = prepare_dataset(dataset_config["inference"])
     logger.info(f"Inference dataset size: {len(inference_dataset)}")
-    
+
     logger.info(f"{'=' * 20} Starting inference {'=' * 20}")
     inference_start_time = time.time()
 
-    inference_function(model, 
-                       (inference_dataset, inference_loader), 
-                       output_dir, 
-                       device,
-                       inference_config)
+    mode = inference_config.get("mode", "all")
+    if mode == "all":
+        inference_all(model, inference_loader, device, config)
+    elif mode == "single":
+        inference_single(model, inference_dataset, device, config)
+    elif mode == "random":
+        inference_random(model, inference_dataset, device, config)
+
 
     inference_end_time = time.time()
     logger.info(f"🕒 Inference completed in {inference_end_time - inference_start_time:.2f} seconds")
