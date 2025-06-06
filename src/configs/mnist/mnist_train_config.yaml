@@ -1,9 +1,9 @@
-path_config:  
+path_config:
   output_dir: outputs/train/mnist_experiment # Required or will be saved in the default
   checkpoint_path: null   # Optional
   pretrained_path: null   # Optional
 
-dataset_config: 
+dataset_config:
   train:
     type: MnistDataset  # Required
     dataset_params:  # Custom and Optional
@@ -18,7 +18,7 @@ dataset_config:
   val:    # Optional
     type: MnistDataset  # Required
     dataset_params: # Custom and Optional
-      root: "./data"
+      root: data
       split: false
       download: true
     dataloader_params: # Custom and Optional
@@ -45,7 +45,7 @@ train_config:
     type: StepLR # Required
     params:
       step_size: 5
-      gamma: 0.5   
+      gamma: 0.5
 
   early_stopping: # Custom and Optional
     patience: 3
@@ -53,7 +53,7 @@ train_config:
     mode: max
 
 evaluate_config:
-  metrics: 
+  metrics:
     - function: mnist_accuracy
     - function: mnist_f1_score
       params: # Custom and Optional

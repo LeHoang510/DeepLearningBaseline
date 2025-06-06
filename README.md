@@ -1,11 +1,16 @@
 # DeepLearningBaseline
 
-This is set up for deep learning baseline TODO:
+## TODO
 
-- write template
 - Write readme to explain how to write your own scripts
-- add folder structure
 - add test cases in the future
+
+## Table of contents
+
+- [Set up + Installation](#set-up--installation)
+- [Quick start](#quick-start)
+- [How to write your own scripts](#how-to-write-your-own-scripts)
+- [Contributing](#contributing)
 
 ## Set up + Installation
 
@@ -20,7 +25,7 @@ cd DeepLearningBaseline
 
 #### 1.2. Folder structure
 
-The folder structure of the project in the [structure.md](docs/structure.md) file. The folder structure is designed to be flexible and easy to use. You can add your own scripts in the `train`, `test`, and `inference` directories. You can also add your own data in the `data` directory.
+The folder structure of the project in the [structure.md](docs/structure.md) . The folder structure is designed to be flexible and easy to use. You can add your own scripts in the `train`, `test`, and `inference` directories. You can also add your own data in the `data` directory.
 
 ### 2. Create a conda environment
 
@@ -130,6 +135,7 @@ Use one of the following methods to install the required packages. You can use `
 - You can check if your hardware is compatible by running the following command (only with torch installed):
 
     ```bash
+    # Check hardware compatibility
     python utils/check_hardware.py
     ```
 
@@ -155,7 +161,7 @@ In order to write your own training, testing, and inference scripts, you can ref
 
 ### 2. Run the test script
 
-- You can run the test script by running the command below. #TODO:
+- You can run the test script by running the command below:
 
     ```bash
     # Test the model
@@ -167,7 +173,7 @@ In order to write your own training, testing, and inference scripts, you can ref
 
 ### 3. Run the inference script
 
-- You can run the inference script by running the command below. #TODO:
+- You can run the inference script by running the command below:
 
     ```bash
     # Inference the model
@@ -189,9 +195,32 @@ In order to write your own training, testing, and inference scripts, you can ref
     tensorboard --logdir=outputs/train/mnist_experiment
     ```
 
+### 5. Extra commands
+
+- **Clean**:  You can clean up the outputs or logs by running the following command. Just make sure to well define the path in the `clean.py` script. This will delete all the outputs in the `outputs/` directory:
+
+    ```bash
+    # Clean up
+    python scripts/clean.py
+    ```
+
+- **Visualize**: You can visualize the images in the dataset by running the following command. Just make sure to well define the path in the `visualize.py` script and the logic for visualization. This will visualize the images in the dataset and save them in the `outputs/visualize/` directory:
+
+    ```bash
+    # Visualization
+    python src/visualize/visualize.py
+    ```
+
+- **Config Validation**: You can validate the config file by running the following command. This will check if the config file is valid and if all the required fields are present:
+
+    ```bash
+    # Validate config
+    python src/utils/validate_config.py
+    ```
+
 ## How to write your own scripts
 
-You can write your own training, testing, and inference scripts by following the template scripts in the `train`, `test`, and `inference` directories. You can also refer to the [GUIDE.md](docs/guide.md) file for more details on how to write your own scripts.
+You can write your own training, testing, and inference scripts by following the template scripts in the `train`, `test`, and `inference` directories. You can also refer to the [guide.md](docs/guide.md) for more details on how to write your own scripts.
 
 ## Contributing
 
