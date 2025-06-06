@@ -15,7 +15,6 @@ Key features:
 
 ## TODO
 
-- Write readme to explain how to write your own scripts
 - add test cases in the future
 
 ## Table of contents
