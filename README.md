@@ -13,6 +13,8 @@ Key features:
 
 - Easy to extend, understand, and integrate into new or existing workflows
 
+This template serves as a foundation for building robust deep learning applications, enabling developers to focus on model development rather than boilerplate code.
+
 ## TODO
 
 - add test cases in the future
