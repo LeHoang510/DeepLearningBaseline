@@ -7,9 +7,15 @@ Key features:
 
 - Well-structured project layout for clear separation of concerns
 
-- Modular components: dataset loading, model definition, training, evaluation, and inference
+- Modular structure for easy navigation and maintenance: dataset loading, model definition, training, evaluation, and inference
 
 - YAML-based configuration system for flexible experimentation
+
+- Integrated logging and visualization tools
+
+- Support for multiple deep learning frameworks
+
+- Comprehensive documentation and examples
 
 - Easy to extend, understand, and integrate into new or existing workflows
 
