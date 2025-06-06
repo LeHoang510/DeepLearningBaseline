@@ -13,7 +13,7 @@ from utils.evaluate_helper import EVALUATE_FUNCTIONS
 def train_config_validator(config_path: str|Path):
     """
     Validate the training configuration file.
-    
+
     Args:
         config_path (str | Path): Path to the YAML configuration file.
     Raises:
@@ -21,10 +21,10 @@ def train_config_validator(config_path: str|Path):
     Returns:
         None: If the configuration is valid.
     .. warning::
-       This function only checks for the existence of the necessary parameters, 
-       not the data type or value correctness. 
+       This function only checks for the existence of the necessary parameters,
+       not the data type or value correctness.
        And it also does not give warnings for missing optional parameters.
-    
+
     """
     logger = Logger()
     config = load_yaml(config_path)
@@ -64,7 +64,7 @@ def train_config_validator(config_path: str|Path):
         if "evaluate_config" not in config:
             logger.error("[dataset_config.val] is provided but [evaluate_config] is not set. "
                          "You need to provide [evaluate_config] to evaluate the validation dataset.")
-    
+
     # Validate model_config
     if "type" not in model_config:
         logger.error("[model_config.type] must exist")
@@ -84,8 +84,8 @@ def train_config_validator(config_path: str|Path):
     if "num_epochs" not in train_config:
         logger.error("[train_config.num_epochs] must exist")
     elif not isinstance(train_config["num_epochs"], int) or train_config["num_epochs"] <= 0:
-        logger.error("[train_config.num_epochs] must be a positive integer") 
-    
+        logger.error("[train_config.num_epochs] must be a positive integer")
+
     if "optimizer" not in train_config:
         logger.error("[train_config.optimizer] must exist")
     elif "type" not in train_config["optimizer"]:
@@ -93,14 +93,14 @@ def train_config_validator(config_path: str|Path):
     elif train_config["optimizer"]["type"] not in OPTIMIZERS:
         logger.error(f"[train_config.optimizer.type] '{train_config['optimizer']['type']}' is not supported. "
                      f"Available options: {list(OPTIMIZERS.keys())}")
-    
+
     if "scheduler" in train_config:
         if "type" not in train_config["scheduler"]:
             logger.error("[train_config.scheduler.type] must exist")
         elif train_config["scheduler"]["type"] not in SCHEDULERS:
             logger.error(f"[train_config.scheduler.type] '{train_config['scheduler']['type']}' is not supported. "
                          f"Available options: {list(SCHEDULERS.keys())}")
-    
+
     # Validate evaluate_config
     if evaluate_config:
         if "metrics" not in evaluate_config:
@@ -113,8 +113,8 @@ def train_config_validator(config_path: str|Path):
                     logger.error(f"[evaluate_config.metrics.function] '{metric['function']}' is not supported. "
                                  f"Available options: {list(EVALUATE_FUNCTIONS.keys())}")
         if "main_metric" not in evaluate_config:
-            logger.error("[evaluate_config.main_metric] must exist")  
-    
+            logger.error("[evaluate_config.main_metric] must exist")
+
     # Check if there are any errors
     if logger.has_errors():
         raise ValueError("Configuration validation failed. Please check the logs for details.")
@@ -129,10 +129,10 @@ def test_config_validator(config_path: str|Path):
     Returns:
         None: If the configuration is valid.
     .. warning::
-       This function only checks for the existence of the necessary parameters, 
-       not the data type or value correctness. 
+       This function only checks for the existence of the necessary parameters,
+       not the data type or value correctness.
        And it also does not give warnings for missing optional parameters.
-    
+
     """
     logger = Logger()
     config = load_yaml(config_path)
@@ -177,7 +177,7 @@ def test_config_validator(config_path: str|Path):
                          f"Required params: {params_errors.get('required_params', [])}\n"
                          f"Optional params: {params_errors.get('optional_params', [])}\n"
                          f"Error: {params_errors.get('error', '')}")
-    
+
     # Validate evaluate_config
     if evaluate_config:
         if "metrics" not in evaluate_config:
@@ -191,13 +191,68 @@ def test_config_validator(config_path: str|Path):
                                  f"Available options: {list(EVALUATE_FUNCTIONS.keys())}")
         if "main_metric" not in evaluate_config:
             logger.error("[evaluate_config.main_metric] is required")
-    
+
     # Check if there are any errors
     if logger.has_errors():
         raise ValueError("Configuration validation failed. Please check the logs for details.")
 
 def inference_config_validator(config_path: str|Path):
-    pass
+    """
+    Validate the inference configuration file.
+    Args:
+        config_path (str | Path): Path to the YAML configuration file.
+    Raises:
+        ValueError: If any required configuration parameter is missing or invalid.
+    Returns:
+        None: If the configuration is valid.
+    .. warning::
+       This function only checks for the existence of the necessary parameters,
+       not the data type or value correctness.
+       And it also does not give warnings for missing optional parameters.
+
+    """
+    logger = Logger()
+    config = load_yaml(config_path)
+
+    path_config = config.get("path_config", {})
+    model_config = config.get("model_config", {})
+    dataset_config = config.get("dataset_config", {})
+
+    # Validate path_config
+    output_dir = path_config.get("output_dir", None)
+    checkpoint_path = path_config.get("checkpoint_path", None)
+    if not output_dir:
+        logger.error("[path_config.output_dir] is required")
+    if not checkpoint_path:
+        logger.error("[path_config.checkpoint_path] is required")
+    elif not Path(checkpoint_path).exists():
+        logger.error(f"[path_config.checkpoint_path] does not exist: {checkpoint_path}")
+
+    # Validate dataset_config
+    if "inference" not in dataset_config:
+        logger.error("[dataset_config.inference] is required")
+    else:
+        inference_dataset_config = dataset_config["inference"]
+        inference_dataset_config_errors = _validate_dataset_config(inference_dataset_config)
+        if inference_dataset_config_errors:
+            for key, error in inference_dataset_config_errors.items():
+                logger.error(f"[dataset_config.inference.{key}] {error}")
+
+    # Validate model_config
+    if "type" not in model_config:
+        logger.error("[model_config.type] is required")
+    elif model_config["type"] not in MODELS:
+        logger.error(f"[model_config.type] '{model_config['type']}' is not supported. "
+                     f"Available options: {list(MODELS.keys())}")
+    else:
+        model_class = MODELS[model_config["type"]]
+        params = model_config.get("params", {})
+        params_errors = _validate_params(model_class, params)
+        if params_errors:
+            logger.error(f"[model_config.params] {model_config['type']} parameters error\n"
+                         f"Required params: {params_errors.get('required_params', [])}\n"
+                         f"Optional params: {params_errors.get('optional_params', [])}\n"
+                         f"Error: {params_errors.get('error', '')}")
 
 def _validate_dataset_config(x_dataset_config: dict):
     """
@@ -214,10 +269,10 @@ def _validate_dataset_config(x_dataset_config: dict):
     elif x_dataset_config["type"] not in DATASETS:
         errors["type"] = f"'{x_dataset_config['type']}' is not supported. Available options: {list(DATASETS.keys())}"
         return errors
-    
+
     dataset_class = DATASETS[x_dataset_config["type"]]
     params = x_dataset_config.get("dataset_params", {})
-    
+
     params_errors = _validate_params(dataset_class, params)
     if params_errors:
         errors["dataset_params"] = (
@@ -226,17 +281,17 @@ def _validate_dataset_config(x_dataset_config: dict):
             f"Optional params: {params_errors.get('optional_params', [])}\n"
             f"Error: {params_errors.get('error', '')}"
         )
-            
+
     return errors
 
 def _validate_params(cls: type, params: dict):
     """
     Validate the parameters for a given class.
-    
+
     Args:
         cls (type): The class to validate
         params (dict): The parameters to validate.
-    Returns:    
+    Returns:
         errors (dict): Dictionary of errors if validation fails.
     """
     try:
@@ -260,7 +315,7 @@ def _validate_params(cls: type, params: dict):
             "optional_params": optional_params,
             "error": str(e)
         }
-    
+
     return {}
 
 if __name__ == "__main__":

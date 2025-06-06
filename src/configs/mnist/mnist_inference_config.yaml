@@ -19,7 +19,7 @@ model_config:
   # params: # Custom and Optional
 
 inference_config:
-  mode: "all"
+  mode: "random"
   display: true
   save: false
   log: true

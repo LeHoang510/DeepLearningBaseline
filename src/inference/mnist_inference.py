@@ -1,4 +1,5 @@
 import os
+import random
 import shutil
 import time
 import traceback
@@ -6,7 +7,7 @@ from pathlib import Path
 
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 from core.logger import Logger
 from core.check_hardware import check_hardware
@@ -105,18 +106,109 @@ def inference_all(model: nn.Module,
         save_yaml(results, output_dir / "inference_results.yaml")
 
 def inference_single(model: nn.Module,
-                     dataset: torch.utils.data.Dataset,
-                     output_dir: str|Path,
+                     dataset: Dataset,
                      device: str|torch.device,
                      config: dict):
     """
     Function to handle inference for a single data point.
     This function should take a single image and perform inference on it.
     """
-    pass
+    logger = Logger()
 
-def inference_random():
-    pass
+    path_config = config.get("path_config")
+    output_dir = Path(path_config.get("output_dir", "outputs/inference/experiment"))
+
+    inference_config = config.get("inference_config", {})
+    display = inference_config.get("display", False)
+    save = inference_config.get("save", False)
+    log = inference_config.get("log", True)
+    id = inference_config.get("id", 0)
+
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+    logger.info(f"Output directory: {output_dir}")
+    if save:
+        image_dir = output_dir/"predictions"
+        os.makedirs(image_dir, exist_ok=True)
+        logger.info(f"Saving predictions to {image_dir}")
+
+    model.eval()
+
+    with torch.no_grad():
+
+        image, target = dataset[id]
+        image = image.to(device)
+
+        predictions, _ = model(image.unsqueeze(0))
+        probs = torch.exp(predictions)
+        max_probs, predicted_classes = torch.max(probs, dim=1)
+
+        if log or display or save:
+            if log:
+                logger.info(f"[Processing single image] Label: {target}, Predicted: {predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}")
+
+            if display or save:
+                image = denormalize(image, mean=(0.1307,), std=(0.3081,)).cpu()
+                save_path = image_dir / "single_image_prediction.png" if save else None
+                plot_gray_image(image=image,
+                                label=target,
+                                pred=f"{predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}",
+                                display=display,
+                                save_path=save_path)
+
+
+def inference_random(model: nn.Module,
+                     dataset: Dataset,
+                     device: str|torch.device,
+                     config: dict):
+    """
+    Function to handle inference for a random data point.
+    This function should randomly select an image from the dataset and perform inference on it.
+    """
+    logger = Logger()
+
+    path_config = config.get("path_config")
+    output_dir = Path(path_config.get("output_dir", "outputs/inference/experiment"))
+
+    inference_config = config.get("inference_config", {})
+    display = inference_config.get("display", False)
+    save = inference_config.get("save", False)
+    log = inference_config.get("log", True)
+    id = random.randint(0, len(dataset) - 1)
+
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+    logger.info(f"Output directory: {output_dir}")
+    if save:
+        image_dir = output_dir/"predictions"
+        os.makedirs(image_dir, exist_ok=True)
+        logger.info(f"Saving predictions to {image_dir}")
+
+    model.eval()
+
+    with torch.no_grad():
+
+        image, target = dataset[id]
+        image = image.to(device)
+
+        predictions, _ = model(image.unsqueeze(0))
+        probs = torch.exp(predictions)
+        max_probs, predicted_classes = torch.max(probs, dim=1)
+
+        if log or display or save:
+            if log:
+                logger.info(f"[Processing single image] Label: {target}, Predicted: {predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}")
+
+            if display or save:
+                image = denormalize(image, mean=(0.1307,), std=(0.3081,)).cpu()
+                save_path = image_dir / "single_image_prediction.png" if save else None
+                plot_gray_image(image=image,
+                                label=target,
+                                pred=f"{predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}",
+                                display=display,
+                                save_path=save_path)
 
 def inference(config_path: str|Path, device: str|torch.device):
     """
