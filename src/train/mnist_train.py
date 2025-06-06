@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from core.logger import Logger
 from core.check_hardware import check_hardware
-from core.utils import load_yaml, save_yaml
+from core.utils import load_yaml, save_yaml, set_seed
 from utils.train_helper import prepare_training, prepare_dataset
 from utils.evaluate_helper import evaluate
 
@@ -194,6 +194,7 @@ def train(config_path: Path|str, device: str|torch.device):
     tensorboard.close()
 
 if __name__ == "__main__":
+    set_seed(42)  # Set a fixed seed for reproducibility
     logger = Logger("train")
     device, is_cuda = check_hardware(verbose=False)
     config_path = Path("src/configs/mnist/mnist_train_config.yaml")

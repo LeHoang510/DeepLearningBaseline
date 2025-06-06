@@ -7,7 +7,7 @@ from pathlib import Path
 import torch
 from core.logger import Logger
 from core.check_hardware import check_hardware
-from core.utils import load_yaml, save_yaml
+from core.utils import load_yaml, save_yaml, set_seed
 from utils.train_helper import get_model, prepare_dataset
 from utils.evaluate_helper import evaluate
 
@@ -26,7 +26,7 @@ def test(config_path: Path|str, device: str|torch.device):
 
     model_checkpoint = Path(path_config["checkpoint_path"]) if path_config.get("checkpoint_path") else None
     output_dir = Path(path_config.get("output_dir", "outputs/test/experiment"))
-    
+
     if output_dir.exists():
         shutil.rmtree(output_dir)
     os.makedirs(output_dir, exist_ok=True)
@@ -66,13 +66,14 @@ def test(config_path: Path|str, device: str|torch.device):
         },
         "metrics": {k: round(v, 4) for k, v in test_metric.items()},
         "losses": {k: round(v, 4) for k, v in test_loss.items()},
-    }   
+    }
     save_yaml(results, output_dir / "evaluation_results.yaml")
-    
+
     logger.info(f"💾 Evaluation results saved to {output_dir / 'evaluation_results.yaml'}")
     logger.info(f"{'=' * 20} Testing completed {'=' * 20}")
 
 if __name__ == "__main__":
+    set_seed(24)  # Set random seed for reproducibility
     logger = Logger("test")
     device, is_cuda = check_hardware(verbose=False)
     config_path = Path("src/configs/mnist/mnist_test_config.yaml")

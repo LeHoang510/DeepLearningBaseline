@@ -11,6 +11,7 @@ class MnistTransform:
     """
     def __init__(self):
         self.transforms = [
+            self.to_grayscale,
             self.to_tensor,
             self.normalize
         ]
@@ -40,7 +41,7 @@ class MnistDataset(Dataset):
     apply transformations, and retrieve samples.
     """
     def __init__(self,
-                 root: str = "./data",
+                 root: str = "data",
                  split: bool = True,
                  download: bool = True,
                  transform: MnistTransform = MnistTransform()):

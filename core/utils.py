@@ -50,14 +50,24 @@ def save_yaml(data: dict, save_path: Path|str):
     with open(save_path, 'w') as f:
         yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
 
+def save_json(data: dict, save_path: Path|str):
+    """
+    Save a dictionary to a JSON file.
+    Args:
+        data (dict): Data to save.
+        save_path (Path|str): Path where the JSON file will be saved.
+    """
+    with open(save_path, 'w') as f:
+        json.dump(data, f, indent=2)
+
 class EarlyStopping:
     """
     A utility class for early stopping during training.
     Args:
         patience (int): Number of epochs with no improvement after which training will be stopped.
         min_delta (float): Minimum change in the monitored quantity to qualify as an improvement.
-        mode (str): One of {'min', 'max'}. 
-            In 'min' mode, training will stop when the quantity monitored has stopped decreasing; 
+        mode (str): One of {'min', 'max'}.
+            In 'min' mode, training will stop when the quantity monitored has stopped decreasing;
             In 'max' mode, it will stop when the quantity monitored has stopped increasing.
     """
     def __init__(self, patience: int = 5, min_delta: float = 0.0, mode: str = 'max'):
@@ -71,7 +81,7 @@ class EarlyStopping:
         elif mode == 'min':
             self.best_metric = float('inf')
             self.compare_op = lambda x, y: x < y - min_delta
-    
+
     def __call__(self, val_metric: float):
         """
         Call method to update the early stopping state.
@@ -95,14 +105,14 @@ class EarlyStopping:
             bool: True if the patience limit has been reached, False otherwise.
         """
         return self.counter >= self.patience
-    
+
     def state_dict(self):
         return {
             'counter': self.counter,
             'best_metric': self.best_metric,
             'mode': self.mode,
         }
-    
+
     def load_state_dict(self, state_dict: dict):
         self.counter = state_dict['counter']
         self.best_metric = state_dict['best_metric']
@@ -117,7 +127,7 @@ class TensorBoard:
     def __init__(self, log_dir: Path|str = Path("outputs/logs")):
         self.log_dir = log_dir
         self.writer = None
-    
+
     def create_writer(self):
         if self.writer is None:
             self.writer = SummaryWriter(log_dir=self.log_dir)
@@ -157,4 +167,3 @@ class TensorBoard:
 		"""
         if self.writer is not None:
             self.writer.close()
-			

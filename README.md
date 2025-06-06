@@ -2,7 +2,6 @@
 
 This is set up for deep learning baseline TODO:
 
-- Update README.md GUIDE
 - write template
 - Write readme to explain how to write your own scripts
 - add folder structure
@@ -12,10 +11,16 @@ This is set up for deep learning baseline TODO:
 
 ### 1. Clone the repository
 
+#### 1.1. Clone the repository using git
+
 ```bash
 git clone git@github.com:LeHoang510/DeepLearningBaseline.git
 cd DeepLearningBaseline
 ```
+
+#### 1.2. Folder structure
+
+The folder structure of the project in the [structure.md](docs/structure.md) file. The folder structure is designed to be flexible and easy to use. You can add your own scripts in the `train`, `test`, and `inference` directories. You can also add your own data in the `data` directory.
 
 ### 2. Create a conda environment
 

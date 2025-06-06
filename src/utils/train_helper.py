@@ -7,21 +7,17 @@ from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 from core.utils import EarlyStopping, TensorBoard
 
-from models.template.example_model import ExampleModel
 from models.mnist.mnist_model import MnistModel
-from datasets.template_dataset import ExampleDataset
 from datasets.mnist_dataset import MnistDataset
 
 DATASETS = {
-    "ExampleDataset": ExampleDataset,
     "MnistDataset": MnistDataset,
     # "VOC": VOCDataset,
     # other datasets can be added here
 }
 
 MODELS = {
-    "ExampleModel": ExampleModel,
-    "MnistModel": MnistModel, 
+    "MnistModel": MnistModel,
     # other models can be added here
 }
 
