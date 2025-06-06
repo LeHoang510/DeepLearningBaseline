@@ -11,19 +11,19 @@ TRANSFORMS = {
     # Add other transforms here as needed
 }
 
-def plot_gray_image(image, label=None, pred=None, display=True, save_path=None):
+def plot_gray_image(image, title=None, display=True, save_path=None):
     """
     Plots an image with optional label and prediction.
     Args:
         image (torch.Tensor): The image tensor to plot.
-        label (int, optional): The true label of the image.
-        pred (int, optional): The predicted label of the image.
+        label (str, optional): The true label of the image.
+        pred (str, optional): The predicted label of the image.
         save_path (str, optional): Path to save the plotted image. If None, it will display the image.
     """
     plt.figure(figsize=(6, 6))
     plt.axis('off')
-    if label is not None:
-        plt.title(f"Label: {label}, Pred: {pred}" if pred is not None else f"Label: {label}")
+    if title is not None:
+        plt.title(title)
     else:
         plt.title("Image")
     plt.imshow(image.squeeze(), cmap='gray')
@@ -31,17 +31,15 @@ def plot_gray_image(image, label=None, pred=None, display=True, save_path=None):
     plt.show() if display else None
     plt.close()
 
-def plot_multiple_gray_images(images, labels=None, preds=None, display=True, save_path=None):
+def plot_multiple_gray_images(images, titles=None, display=True, save_path=None):
     """
-    Plots multiple gray images with optional labels and predictions.
+    Plots multiple gray images with optional titles.
 
     Args:
         images (torch.Tensor): List of image tensors to plot.
-        labels (torch.Tensor, optional): List of true labels for the images.
-        preds (torch.Tensor, optional): List of predicted labels for the images.
+        titles (list, optional): List of titles for the images.
         save_path (str, optional): Path to save the plotted images. If None, it will display the images.
-    .. note::
-        loads images, labels from dataloader and plots them in a grid."""
+    """
     nb_img = images.size(0)
     ncols = 5
     nrows = math.ceil(nb_img / ncols)
@@ -50,18 +48,12 @@ def plot_multiple_gray_images(images, labels=None, preds=None, display=True, sav
 
     for i in range(nb_img):
         img = images[i].squeeze()
-        label = labels[i] if labels is not None else None
-        pred = preds[i] if preds is not None else None
+        title = titles[i] if titles is not None else None
 
         plt.subplot(nrows, ncols, i + 1)
         plt.imshow(img, cmap='gray')
         plt.axis('off')
 
-        title = ""
-        if label is not None:
-            title += f"Label: {label}"
-        if pred is not None:
-            title += f", Pred: {pred}" if title else f"Pred: {pred}"
         if title:
             plt.title(title)
 
@@ -70,7 +62,7 @@ def plot_multiple_gray_images(images, labels=None, preds=None, display=True, sav
     plt.show() if display else None
     plt.close()
 
-def plot_color_image(image, label=None, pred=None, display=True, save_path=None):
+def plot_color_image(image, title=None, display=True, save_path=None):
     """
     Plots a color image with optional label and prediction.
 
@@ -82,8 +74,8 @@ def plot_color_image(image, label=None, pred=None, display=True, save_path=None)
     """
     plt.figure(figsize=(6, 6))
     plt.axis('off')
-    if label is not None:
-        plt.title(f"Label: {label}, Pred: {pred}" if pred is not None else f"Label: {label}")
+    if title is not None:
+        plt.title(title)
     else:
         plt.title("Image")
     plt.imshow(image.permute(1, 2, 0).numpy())
@@ -91,16 +83,15 @@ def plot_color_image(image, label=None, pred=None, display=True, save_path=None)
     plt.show() if display else None
     plt.close()
 
-def plot_multiple_color_images(images, labels=None, preds=None, display=True, save_path=None):
+def plot_multiple_color_images(images, titles=None, display=True, save_path=None):
     """
-    Plots multiple color images with optional labels and predictions.
+    Plots multiple color images with optional titles.
     Args:
         images (torch.Tensor): List of image tensors to plot.
-        labels (torch.Tensor, optional): List of true labels for the images.
-        preds (torch.Tensor, optional): List of predicted labels for the images.
+        titles (list, optional): List of titles for the images.
         save_path (str, optional): Path to save the plotted images. If None, it will display the images.
     .. note::
-        loads images, labels from dataloader and plots them in a grid.
+        loads images, titles from dataloader and plots them in a grid.
     """
     nb_img = images.size(0)
     ncols = 5
@@ -110,18 +101,12 @@ def plot_multiple_color_images(images, labels=None, preds=None, display=True, sa
 
     for i in range(nb_img):
         img = images[i].permute(1, 2, 0).numpy()
-        label = labels[i] if labels is not None else None
-        pred = preds[i] if preds is not None else None
+        title = titles[i] if titles is not None else None
 
         plt.subplot(nrows, ncols, i + 1)
         plt.imshow(img)
         plt.axis('off')
 
-        title = ""
-        if label is not None:
-            title += f"Label: {label}"
-        if pred is not None:
-            title += f", Pred: {pred}" if title else f"Pred: {pred}"
         if title:
             plt.title(title)
 

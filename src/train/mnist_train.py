@@ -35,7 +35,7 @@ def train(config_path: Path|str, device: str|torch.device):
     checkpoint_path = Path(path_config["checkpoint_path"]) if path_config.get("checkpoint_path") else None
     pretrained_path = Path(path_config["pretrained_path"]) if path_config.get("pretrained_path") else None
     output_dir = Path(path_config.get("output_dir", "outputs/train/experiment"))
-    
+
     # Delete output directory if it exists
     if output_dir.exists():
         shutil.rmtree(output_dir)
@@ -47,7 +47,7 @@ def train(config_path: Path|str, device: str|torch.device):
     # Prepare training
     model, optimizer, scheduler, early_stopper, tensorboard = prepare_training(config, output_dir)
     model.to(device)
-    
+
     start_time = time.time()
     start_epoch = 0
     total_epochs = train_config["num_epochs"]
@@ -57,7 +57,7 @@ def train(config_path: Path|str, device: str|torch.device):
         logger.info(f"Loading checkpoint from {checkpoint_path}")
         checkpoint = torch.load(checkpoint_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
-        optimizer.load_state_dict(checkpoint["optimizer_state_dict"]) 
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         if scheduler: scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
         if early_stopper: early_stopper.load_state_dict(checkpoint["early_stopper_state_dict"])
         start_epoch = checkpoint["epoch"] + 1
@@ -99,10 +99,10 @@ def train(config_path: Path|str, device: str|torch.device):
             dynamic_ncols=True,
         )
         # Tranining step
-        for batch_idx, (images, targets) in enumerate(train_loader_tqdm):
+        for batch_idx, sample in enumerate(train_loader_tqdm):
             try:
-                images = images.to(device)
-                targets = targets.to(device)
+                images = sample["image"].to(device)
+                targets = sample["target"].to(device)
 
                 predictions, loss_dict = model(images, targets)
                 losses = sum(loss for loss in loss_dict.values())
@@ -127,7 +127,7 @@ def train(config_path: Path|str, device: str|torch.device):
                 logger.error(f"Error during training step {batch_idx}: {e}")
                 logger.error(traceback.format_exc())
                 continue
-        
+
         # End of epoch
         epoch_duration = time.time() - epoch_start_time
         epoch_all_losses = {key: all_losses[key] / len(train_loader) for key in all_losses}
@@ -158,7 +158,7 @@ def train(config_path: Path|str, device: str|torch.device):
             if prev_checkpoint.exists():
                 prev_checkpoint.unlink()
                 logger.debug(f"Deleted previous checkpoint: {prev_checkpoint}")
-        
+
         # Validation
         if val_loader:
             logger.info(f"[🔍 VAL] Starting validation")
@@ -186,7 +186,7 @@ def train(config_path: Path|str, device: str|torch.device):
                 if early_stopper.status():
                     logger.info("🛑 Early stopping triggered, stopping training")
                     break
-        
+
         tensorboard.flush()
 
     logger.info(f"🕒 Total training time: {time.time() - start_time:.2f}s")

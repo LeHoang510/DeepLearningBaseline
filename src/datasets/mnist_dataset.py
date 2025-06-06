@@ -66,7 +66,11 @@ class MnistDataset(Dataset):
         if self.transform is not None:
             image, target = self.transform(image, target)
 
-        return image, target
+        return {
+            'image': image,
+            'target': target,
+            'id': idx
+        }
 
     @staticmethod
     def collate_fn(batch):
@@ -77,8 +81,12 @@ class MnistDataset(Dataset):
         Returns:
             tuple: A tuple containing a batch of images and their corresponding targets.
         """
-        images, targets = zip(*batch)  # Unzip list of tuples
-        images = torch.stack(images)   # Stack into tensor [B, C, H, W]
-        targets = torch.tensor(targets)  # Convert targets to tensor [B]
+        images = torch.stack([item['image'] for item in batch])        # [B, C, H, W]
+        targets = torch.tensor([item['target'] for item in batch])     # [B]
+        ids = [item['id'] for item in batch]
 
-        return images, targets
+        return {
+            'images': images,
+            'targets': targets,
+            'ids': ids
+        }

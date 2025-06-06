@@ -54,9 +54,10 @@ def inference_all(model: nn.Module,
     metric_results = {}
 
     with torch.no_grad():
-        for images, targets in dataloader:
-            images = images.to(device)
-            targets = targets.to(device)
+        for sample in dataloader:
+            images = sample["images"].to(device)
+            targets = sample["targets"].to(device)
+            ids = sample["ids"]
 
             predictions, loss_dict = model(images, targets)
             losses = sum(loss for loss in loss_dict.values())
@@ -71,21 +72,21 @@ def inference_all(model: nn.Module,
             probs = torch.exp(predictions)
             max_probs, predicted_classes = torch.max(probs, dim=1)
 
-            # FIXME to add path or id
             if log or display or save:
                 for i, (image, target) in enumerate(zip(images, targets)):
+                    id = ids[i]
                     label = target.cpu().item()
                     pred = f"{predicted_classes[i].cpu().item()}_{max_probs[i].cpu().item():.2f}"
 
                     if log:
-                        logger.info(f"[Processing image] Label: {label}, Predicted: {pred}")
+                        logger.info(f"[Processing image id {id}] Label: {label}, Predicted: {pred}")
 
                     if display or save:
+                        title = f"id_{id}/label_{label}/pred_{pred}"
                         image = denormalize(image, mean=(0.1307,), std=(0.3081,)).cpu()
                         save_path = image_dir / f"image_{i}_pred_{pred}.png" if save else None
                         plot_gray_image(image=image,
-                                        label=label,
-                                        pred=pred,
+                                        title=title,
                                         display=display,
                                         save_path=save_path)
 
@@ -137,7 +138,8 @@ def inference_single(model: nn.Module,
 
     with torch.no_grad():
 
-        image, target = dataset[id]
+        sample = dataset[id]
+        image, target = sample["image"], sample["target"]
         image = image.to(device)
 
         predictions, _ = model(image.unsqueeze(0))
@@ -145,15 +147,16 @@ def inference_single(model: nn.Module,
         max_probs, predicted_classes = torch.max(probs, dim=1)
 
         if log or display or save:
+
             if log:
                 logger.info(f"[Processing single image] Label: {target}, Predicted: {predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}")
 
             if display or save:
+                title = f"id_{sample['id']}/label_{target}/pred_{predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}"
                 image = denormalize(image, mean=(0.1307,), std=(0.3081,)).cpu()
                 save_path = image_dir / "single_image_prediction.png" if save else None
                 plot_gray_image(image=image,
-                                label=target,
-                                pred=f"{predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}",
+                                title=title,
                                 display=display,
                                 save_path=save_path)
 
@@ -190,7 +193,8 @@ def inference_random(model: nn.Module,
 
     with torch.no_grad():
 
-        image, target = dataset[id]
+        sample = dataset[id]
+        image, target = sample["image"], sample["target"]
         image = image.to(device)
 
         predictions, _ = model(image.unsqueeze(0))
@@ -202,11 +206,11 @@ def inference_random(model: nn.Module,
                 logger.info(f"[Processing single image] Label: {target}, Predicted: {predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}")
 
             if display or save:
+                title = f"id_{sample['id']}/label_{target}/pred_{predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}"
                 image = denormalize(image, mean=(0.1307,), std=(0.3081,)).cpu()
                 save_path = image_dir / "single_image_prediction.png" if save else None
                 plot_gray_image(image=image,
-                                label=target,
-                                pred=f"{predicted_classes[0].cpu().item()}_{max_probs[0].cpu().item():.2f}",
+                                title=title,
                                 display=display,
                                 save_path=save_path)
 

@@ -7,6 +7,7 @@ This is set up for deep learning baseline TODO:
 - write template
 - Write readme to explain how to write your own scripts
 - add folder structure
+- add test cases in the future
 
 ## Set up + Installation
 
