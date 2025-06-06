@@ -1,0 +1,24 @@
+path_config:
+  output_dir: outputs/inference/mnist_experiment
+  checkpoint_path: outputs/train/mnist_experiment/best_model.pth
+
+dataset_config:
+  inference:
+    type: MnistDataset
+    dataset_params:
+      root: data
+      split: false
+      download: true
+    dataloader_params:
+      batch_size: 2
+      shuffle: false
+      num_workers: 4
+
+model_config:
+  type: MnistModel
+  # params: # Custom and Optional
+
+inference_config:
+  mode: "all"
+  params:
+    save: false

@@ -196,6 +196,9 @@ def test_config_validator(config_path: str|Path):
     if logger.has_errors():
         raise ValueError("Configuration validation failed. Please check the logs for details.")
 
+def inference_config_validator(config_path: str|Path):
+    pass
+
 def _validate_dataset_config(x_dataset_config: dict):
     """
     Validate the dataset configuration.
@@ -262,10 +265,14 @@ def _validate_params(cls: type, params: dict):
 
 if __name__ == "__main__":
     logger = Logger("config_validator")
-    config_path = Path("src/configs/mnist/test_code.yaml")
+    train_config_path = Path("src/configs/mnist/mnist_train_config.yaml")
+    test_config_path = Path("src/configs/mnist/mnist_test_config.yaml")
+    inference_config_path = Path("src/configs/mnist/mnist_inference_config.yaml")
     try:
-        train_config_validator(config_path)
-        logger.info(f"✅ Configuration validation finished for {config_path}")
+        train_config_validator(train_config_path)
+        test_config_validator(test_config_path)
+        inference_config_validator(inference_config_path)
+        logger.info(f"✅ Configuration validation successful")
     except Exception as e:
         logger.error(f"❌ Configuration validation failed: {e}")
         logger.error(traceback.format_exc())

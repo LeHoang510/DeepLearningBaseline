@@ -188,9 +188,9 @@ def train(config_path: Path|str, device: str|torch.device):
                     break
         
         tensorboard.flush()
-        
+
+    logger.info(f"🕒 Total training time: {time.time() - start_time:.2f}s")
     logger.info(f"{'=' * 20} Training completed successfully {'=' * 20}")
-    logger.info(f"Total training time: {time.time() - start_time:.2f}s")
     tensorboard.close()
 
 if __name__ == "__main__":

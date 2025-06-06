@@ -7,6 +7,9 @@ This is set up for deep learning baseline
 + write template
 + Write test allow to save predictions output
 + Write readme to explain how to write your own scripts
++ add folder structure
++ refactor to return sample in dataset
++ add metrics during inference
 
 # Set up + Installation
 ## 1. Clone the repository
@@ -167,6 +170,8 @@ In order to write your own training, testing, and inference scripts, you can ref
     tensorboard --logdir=outputs/train/mnist_experiment
     ```
 
+# How to write your own scripts
+You can write your own training, testing, and inference scripts by following the template scripts in the `train`, `test`, and `inference` directories. You can also refer to the [GUIDE.md](docs/guide.md) file for more details on how to write your own scripts.
 
 # Contributing
 Hi, my name is Le Hoang, I am the author of this project

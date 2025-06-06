@@ -6,7 +6,7 @@ dataset_config:
   test:
     type: MnistDataset
     dataset_params:  
-      root: "./data"
+      root: data
       split: true
       download: true
     dataloader_params: 

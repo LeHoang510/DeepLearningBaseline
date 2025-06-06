@@ -7,7 +7,7 @@ dataset_config:
   train:
     type: MnistDataset  # Required
     dataset_params:  # Custom and Optional
-      root: "./data"
+      root: data
       split: true
       download: true
     dataloader_params: # Custom and Optional

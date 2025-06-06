@@ -20,6 +20,11 @@ class MnistTransform:
             image, target = transform(image, target)
         return image, target
 
+    def to_grayscale(self, image, target):
+        if image.mode != 'L':
+            image = image.convert('L')
+        return image, target
+
     def to_tensor(self, image, target):
         image = F.to_tensor(image)
         return image, target
@@ -57,8 +62,6 @@ class MnistDataset(Dataset):
 
     def __getitem__(self, idx):
         image, target = self.data[idx]
-        if image.mode != 'L':
-            image = image.convert('L')
 
         if self.transform is not None:
             image, target = self.transform(image, target)
