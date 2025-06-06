@@ -2,6 +2,7 @@
 
 This is set up for deep learning baseline TODO:
 
+- add metrics during inference
 - Update README.md yaml config
 - write visualize code
 - write template
@@ -9,7 +10,7 @@ This is set up for deep learning baseline TODO:
 - Write readme to explain how to write your own scripts
 - add folder structure
 - refactor to return sample in dataset
-- add metrics during inference
+- rewrite clean.py
 
 ## Set up + Installation
 
