@@ -2,11 +2,9 @@
 
 This is set up for deep learning baseline TODO:
 
-- add metrics during inference
 - Update README.md yaml config
 - write visualize code
 - write template
-- Write test allow to save predictions output
 - Write readme to explain how to write your own scripts
 - add folder structure
 - refactor to return sample in dataset

@@ -1,3 +1,5 @@
+import math
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -29,6 +31,45 @@ def plot_gray_image(image, label=None, pred=None, display=True, save_path=None):
     plt.show() if display else None
     plt.close()
 
+def plot_multiple_gray_images(images, labels=None, preds=None, display=True, save_path=None):
+    """
+    Plots multiple gray images with optional labels and predictions.
+
+    Args:
+        images (torch.Tensor): List of image tensors to plot.
+        labels (torch.Tensor, optional): List of true labels for the images.
+        preds (torch.Tensor, optional): List of predicted labels for the images.
+        save_path (str, optional): Path to save the plotted images. If None, it will display the images.
+    .. note::
+        loads images, labels from dataloader and plots them in a grid."""
+    nb_img = images.size(0)
+    ncols = 5
+    nrows = math.ceil(nb_img / ncols)
+
+    plt.figure(figsize=(ncols * 2, nrows * 2))
+
+    for i in range(nb_img):
+        img = images[i].squeeze()
+        label = labels[i] if labels is not None else None
+        pred = preds[i] if preds is not None else None
+
+        plt.subplot(nrows, ncols, i + 1)
+        plt.imshow(img, cmap='gray')
+        plt.axis('off')
+
+        title = ""
+        if label is not None:
+            title += f"Label: {label}"
+        if pred is not None:
+            title += f", Pred: {pred}" if title else f"Pred: {pred}"
+        if title:
+            plt.title(title)
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight') if save_path else None
+    plt.show() if display else None
+    plt.close()
+
 def plot_color_image(image, label=None, pred=None, display=True, save_path=None):
     """
     Plots a color image with optional label and prediction.
@@ -46,6 +87,45 @@ def plot_color_image(image, label=None, pred=None, display=True, save_path=None)
     else:
         plt.title("Image")
     plt.imshow(image.permute(1, 2, 0).numpy())
+    plt.savefig(save_path, dpi=300, bbox_inches='tight') if save_path else None
+    plt.show() if display else None
+    plt.close()
+
+def plot_multiple_color_images(images, labels=None, preds=None, display=True, save_path=None):
+    """
+    Plots multiple color images with optional labels and predictions.
+    Args:
+        images (torch.Tensor): List of image tensors to plot.
+        labels (torch.Tensor, optional): List of true labels for the images.
+        preds (torch.Tensor, optional): List of predicted labels for the images.
+        save_path (str, optional): Path to save the plotted images. If None, it will display the images.
+    .. note::
+        loads images, labels from dataloader and plots them in a grid.
+    """
+    nb_img = images.size(0)
+    ncols = 5
+    nrows = math.ceil(nb_img / ncols)
+
+    plt.figure(figsize=(ncols * 2, nrows * 2))
+
+    for i in range(nb_img):
+        img = images[i].permute(1, 2, 0).numpy()
+        label = labels[i] if labels is not None else None
+        pred = preds[i] if preds is not None else None
+
+        plt.subplot(nrows, ncols, i + 1)
+        plt.imshow(img)
+        plt.axis('off')
+
+        title = ""
+        if label is not None:
+            title += f"Label: {label}"
+        if pred is not None:
+            title += f", Pred: {pred}" if title else f"Pred: {pred}"
+        if title:
+            plt.title(title)
+
+    plt.tight_layout()
     plt.savefig(save_path, dpi=300, bbox_inches='tight') if save_path else None
     plt.show() if display else None
     plt.close()
