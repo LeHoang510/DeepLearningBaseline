@@ -1,5 +1,18 @@
 # DeepLearningBaseline
 
+🧠 Deep Learning Project Template
+This is a modular and scalable setup template for deep learning projects, designed to improve code readability, reusability, and development speed.
+
+Key features:
+
+- Well-structured project layout for clear separation of concerns
+
+- Modular components: dataset loading, model definition, training, evaluation, and inference
+
+- YAML-based configuration system for flexible experimentation
+
+- Easy to extend, understand, and integrate into new or existing workflows
+
 ## TODO
 
 - Write readme to explain how to write your own scripts
