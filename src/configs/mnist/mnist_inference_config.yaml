@@ -20,5 +20,7 @@ model_config:
 
 inference_config:
   mode: "all"
+  save: false
   params:
     save: false
+  #FIXME: Add more parameters as needed

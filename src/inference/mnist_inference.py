@@ -42,7 +42,7 @@ def inference_all(model, dataloader, output_dir, device, save: bool=False):
 
             correct += (predicted_classes == targets).sum().item()
             total += targets.size(0)
-            
+
             # Fix to add path or id
             for i, image in enumerate(images):
                 label = targets[i].cpu().item()
@@ -76,8 +76,10 @@ def inference_function(model: nn.Module, data: tuple, output_dir: str|Path, devi
     """
     dataset, dataloader = data
     mode = config.get("mode", "all")
+    save = config.get("save", False)
     params = config.get("params", {})
-
+    #TODO: Add more parameters as needed
+    
     if mode == "all":
         inference_all(model, dataloader, output_dir, device, **params)
     elif mode == "single":
