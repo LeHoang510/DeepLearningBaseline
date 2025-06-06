@@ -2,12 +2,11 @@
 
 This is set up for deep learning baseline TODO:
 
-- Update README.md yaml config
-- write visualize code
+- refactor to return sample in dataset
+- Update README.md GUIDE
 - write template
 - Write readme to explain how to write your own scripts
 - add folder structure
-- refactor to return sample in dataset
 
 ## Set up + Installation
 
