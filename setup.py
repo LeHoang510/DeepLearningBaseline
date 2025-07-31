@@ -22,7 +22,8 @@ extras_require = {
 setup(
     name=NAME,
     version=VERSION,
-    packages=find_packages(),
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     include_package_data=True,
     install_requires=install_requires,
     extras_require=extras_require,
