@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from core.utils import EarlyStopping, TensorBoard
 
 from models.mnist.mnist_model import MnistModel
-from datasets.mnist_dataset import MnistDataset
+from src.datasets.mnist_dataset import MnistDataset
 
 DATASETS = {
     "MnistDataset": MnistDataset,

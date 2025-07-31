@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from datasets.mnist_dataset import MnistTransform
+from src.datasets.mnist_dataset import MnistTransform
 
 TRANSFORMS = {
     "MnistTransform": MnistTransform(),

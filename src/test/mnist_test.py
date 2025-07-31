@@ -8,8 +8,8 @@ import torch
 from core.logger import Logger
 from core.check_hardware import check_hardware
 from core.utils import load_yaml, save_yaml, set_seed
-from utils.train_helper import get_model, prepare_dataset
-from utils.evaluate_helper import evaluate
+from src.utils.train_helper import get_model, prepare_dataset
+from src.utils.evaluate_helper import evaluate
 
 
 def test(config_path: Path|str, device: str|torch.device):

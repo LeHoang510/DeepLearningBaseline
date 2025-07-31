@@ -6,8 +6,8 @@ from torch.utils.data import DataLoader
 
 from core.utils import load_yaml
 from core.logger import Logger
-from utils.train_helper import DATASETS, MODELS, OPTIMIZERS, SCHEDULERS
-from utils.evaluate_helper import EVALUATE_FUNCTIONS
+from src.utils.train_helper import DATASETS, MODELS, OPTIMIZERS, SCHEDULERS
+from src.utils.evaluate_helper import EVALUATE_FUNCTIONS
 
 
 def train_config_validator(config_path: str|Path):

@@ -1,7 +1,7 @@
 import torch
 from tqdm import tqdm
 
-from evaluate.mnist_evaluate import mnist_accuracy, mnist_f1_score
+from src.evaluate.mnist_evaluate import mnist_accuracy, mnist_f1_score
 
 EVALUATE_FUNCTIONS = {
     "mnist_accuracy": mnist_accuracy,

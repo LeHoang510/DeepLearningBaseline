@@ -3,7 +3,7 @@ import random
 from torch.utils.data import DataLoader
 
 from datasets.mnist_dataset import MnistDataset
-from utils.visualize_helper import plot_multiple_gray_images, plot_gray_image
+from src.utils.visualize_helper import plot_multiple_gray_images, plot_gray_image
 
 def visualize_images():
 
@@ -22,7 +22,7 @@ def visualize_images():
 
 def visualize_image(id: int):
     dataset = MnistDataset()
-    
+
     sample = dataset[id]
     image = sample["image"]
     label = sample["target"]

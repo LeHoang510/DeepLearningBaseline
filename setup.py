@@ -22,7 +22,7 @@ extras_require = {
 setup(
     name=NAME,
     version=VERSION,
-    packages=find_packages(include=["models", "core", "src"]),  # Explicit package names
+    packages=find_packages(include=["models*", "core*", "src*"]),  # Explicit package names
     package_dir={
         "models": "models",
         "core": "core",

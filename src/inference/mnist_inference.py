@@ -12,9 +12,9 @@ from torch.utils.data import DataLoader, Dataset
 from core.logger import Logger
 from core.check_hardware import check_hardware
 from core.utils import load_yaml, save_yaml, set_seed
-from utils.train_helper import get_model, prepare_dataset
-from utils.visualize_helper import plot_gray_image, denormalize
-from utils.evaluate_helper import EVALUATE_FUNCTIONS
+from src.utils.train_helper import get_model, prepare_dataset
+from src.utils.visualize_helper import plot_gray_image, denormalize
+from src.utils.evaluate_helper import EVALUATE_FUNCTIONS
 
 @torch.no_grad()
 def inference_all(model: nn.Module,

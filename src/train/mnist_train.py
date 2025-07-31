@@ -11,8 +11,8 @@ from tqdm import tqdm
 from core.logger import Logger
 from core.check_hardware import check_hardware
 from core.utils import load_yaml, save_yaml, set_seed
-from utils.train_helper import prepare_training, prepare_dataset
-from utils.evaluate_helper import evaluate
+from src.utils.train_helper import prepare_training, prepare_dataset
+from src.utils.evaluate_helper import evaluate
 
 def train(config_path: Path|str, device: str|torch.device):
     """
@@ -101,8 +101,8 @@ def train(config_path: Path|str, device: str|torch.device):
         # Tranining step
         for batch_idx, sample in enumerate(train_loader_tqdm):
             try:
-                images = sample["image"].to(device)
-                targets = sample["target"].to(device)
+                images = sample["images"].to(device)
+                targets = sample["targets"].to(device)
 
                 predictions, loss_dict = model(images, targets)
                 losses = sum(loss for loss in loss_dict.values())
